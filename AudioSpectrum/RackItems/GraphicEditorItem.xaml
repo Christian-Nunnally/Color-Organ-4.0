@@ -1,0 +1,31 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:rackItems="clr-namespace:AudioSpectrum.RackItems"
+    x:Class="AudioSpectrum.RackItems.GraphicEditorItem"
+             mc:Ignorable="d" 
+             Height="202.406" d:DesignWidth="350">
+    <Grid Background="White">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="28"/>
+                <RowDefinition Height="152"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="152"/>
+            </Grid.ColumnDefinitions>
+            <rackItems:LedDisplay x:Name="LedSimulator" Grid.Column="1" Grid.Row="1" Margin="0,0,0,1"/>
+            <ListBox x:Name="ChannelsListBox" Height="152" VerticalAlignment="Top" Grid.Row="1" Margin="0,0,10,0" SelectionChanged="ChannelsListBox_OnSelectionChanged"/>
+            <xctk:ColorPicker x:Name="ColorPicker" Margin="93,2,2,2" Grid.Column="1"/>
+            <Label x:Name="ColorLabel" Content="Color:" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="39" Margin="54,0,0,0"/>
+            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,152,0,0"/>
+            <TextBox x:Name="ChannelNameTextBox" Margin="0,2,75,2" TextWrapping="Wrap" Text="TextBox"/>
+            <Button x:Name="AddChannelButton" Content="Add" Margin="108,2,0,2" HorizontalAlignment="Left" Width="35" Click="AddChannelButton_Click"/>
+            <Button x:Name="ModeToggleButton" Content="Edit Mode" Margin="160,2,108,0" VerticalAlignment="Top" Height="25" Grid.ColumnSpan="2" Click="ModeToggleButton_Click"/>
+        </Grid>
+    </Grid>
+</UserControl>

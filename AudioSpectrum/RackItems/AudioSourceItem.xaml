@@ -1,0 +1,28 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="AudioSpectrum.RackItems.AudioSourceItem"
+             mc:Ignorable="d" d:DesignWidth="400" Height="39">
+    <Border Background="#eee">
+        <Border HorizontalAlignment="Center" Width="400">
+            <Grid Margin="10,10,10,0" Height="20" VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="43"/>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="127"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Device" Margin="0,2,7,18"/>
+                <ComboBox x:Name="DeviceSelectionBox" Margin="0,0,5,20" Grid.Column="1" />
+                <ToggleButton x:Name="EnableButton" Content="Enable" Click="EnableButton_Click" Margin="0,0,0,20" Grid.Column="2" HorizontalAlignment="Left" Width="60" />
+                <xctk:IntegerUpDown x:Name="LinesUpDown" ValueChanged="LinesUpDownValueChanged" Value="16" Grid.Column="3" Margin="83,0,0,0" VerticalAlignment="Top" Minimum="1" Maximum="32" Height="20"/>
+                <Label Content="Lines" Grid.Column="3" HorizontalAlignment="Left" Margin="47,-3,0,0" VerticalAlignment="Top" Height="26" Width="37"/>
+            </Grid>
+        </Border>
+    </Border>
+</UserControl>
