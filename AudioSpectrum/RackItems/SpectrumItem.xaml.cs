@@ -2,15 +2,13 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public partial class SpectrumItem : UserControl, IRackItem
+    public partial class SpectrumItem : RackItemBase
     {
-        private RackItemContainer _parentRack;
         private readonly Style _barStyle;
-
-        public string ItemName => "Spectrum";
 
         private IEnumerable<ProgressBar> Bars => SpectrumStackPanel.Children.OfType<ProgressBar>();
 
@@ -21,28 +19,24 @@ namespace AudioSpectrum.RackItems
             _barStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.RangeBase.MaximumProperty, 255.0));
             _barStyle.Setters.Add(new Setter(MarginProperty, new Thickness(2, 0, 2, 0)));
             InitializeComponent();
+            ItemName = "Spectrum";
         }
 
-        public IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem()
         {
             return new SpectrumItem();
         }
 
-        public Dictionary<string, Pipe> GetInputs()
+        public override Dictionary<string, Pipe> GetInputs()
         {
             var inputs = new Dictionary<string, Pipe> {{"Spectrum In", SpectrumIn}};
             return inputs;
         }
 
-        public List<string> GetOutputs()
+        public override List<string> GetOutputs()
         {
             var outputs = new List<string> {"Spectrum Out"};
             return outputs;
-        }
-
-        public void SetRack(RackItemContainer rack)
-        {
-            _parentRack = rack;
         }
 
         private void SpectrumIn(List<byte> data, int iteration)
@@ -75,27 +69,17 @@ namespace AudioSpectrum.RackItems
                 newData.Add(data[i]);
             }
 
-            _parentRack.OutputPipe("Spectrum Out", newData, iteration);
+            RackContainer.OutputPipe("Spectrum Out", newData, iteration);
         }
 
-        public void CleanUp()
+        public override void Save(XmlDocument xml, XmlNode parent)
         {
-
+            var node = parent.AppendChild(xml.CreateElement("SpectrumItem"));
         }
 
-        public bool CanDelete()
+        public override void Load(XmlElement xml)
         {
-            return true;
-        }
-
-        public void SetSideRail(SetSideRailDelegate sideRailSetter)
-        {
-            sideRailSetter.Invoke(ItemName, new List<Control>());
-        }
-
-        public void HeartBeat()
-        {
-            
+            throw new System.NotImplementedException();
         }
     }
 }

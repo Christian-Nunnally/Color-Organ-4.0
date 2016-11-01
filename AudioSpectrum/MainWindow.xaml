@@ -14,6 +14,9 @@
             <Setter Property="Background" Value="#feee"></Setter>
         </Style>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="local:Commands.AddRackCommand" Executed="AddRackCommandExecuted"></CommandBinding>
+    </Window.CommandBindings>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="260"/>
@@ -23,19 +26,32 @@
             <RowDefinition Height="17"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Menu x:Name="menu" Grid.ColumnSpan="2">
+        <Menu Grid.ColumnSpan="2">
             <MenuItem Header="File">
                 <MenuItem Header="New project" HorizontalAlignment="Left" Width="200" Click="NewProject_Click"/>
-                <MenuItem Header="Open project" HorizontalAlignment="Left" Width="200"/>
+                <MenuItem Header="Open project" HorizontalAlignment="Left" Width="200" Click="OpenProject_Click"/>
             </MenuItem>
         </Menu>
-        <ContentControl x:Name="RackArrayContentControl" Grid.Row="1" Grid.Column="1"/>
-        <Grid Grid.Row="1">
+        <Border BorderThickness="1" BorderBrush="#fbbb" Grid.Row="1" Grid.Column="1">
+            <ContentControl BorderBrush="#fbbb" BorderThickness="1" x:Name="RackArrayContentControl"/>
+        </Border>
+        <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="848*"/>
             </Grid.RowDefinitions>
-            <Label x:Name="ProjectNameLabel" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Center" FontSize="24" VerticalContentAlignment="Center"/>
+            <Border BorderThickness="1" BorderBrush="#fbbb">
+                <Label x:Name="ProjectNameLabel" HorizontalContentAlignment="Center" FontSize="24" VerticalContentAlignment="Center"/>
+            </Border>
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="SetupRow" Height="33"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBox x:Name="NewSetupNameTextBox" HorizontalAlignment="Left" Height="23" Margin="10,5,0,0" TextWrapping="Wrap" Text="Setup Name" VerticalAlignment="Top" Width="150" TextChanged="NewSetupNameTextBox_TextChanged"/>
+                <Button x:Name="AddSetupButton" Content="Add Setup" HorizontalAlignment="Left" Margin="165,5,0,0" VerticalAlignment="Top" Width="85" Height="23" Click="AddSetupButton_Click"/>
+                <ListBox x:Name="RackSetupListBox" SelectionChanged="RackSetupListBox_SelectionChanged" Grid.Row="1"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

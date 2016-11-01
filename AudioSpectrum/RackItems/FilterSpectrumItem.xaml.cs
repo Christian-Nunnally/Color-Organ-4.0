@@ -3,29 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public partial class FilterSpectrumItem : UserControl, IRackItem
+    public partial class FilterSpectrumItem : RackItemBase
     {
         private int _maxBars;
         private int _numBars;
-
-        private RackItemContainer _rack;
 
         private const int Decay = 2;
 
         private readonly List<byte> _spectrumMax = new List<byte>();
         private readonly List<byte> _spectrumMin = new List<byte>();
 
-        public string ItemName => "Filter Spectrum";
-
         public FilterSpectrumItem()
         {
             InitializeComponent();
+            ItemName = "Filter Spectrum";
         }
 
-        public void SetSideRail(SetSideRailDelegate sideRailSetter)
+        public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
             sideRailSetter.Invoke(ItemName, new List<Control>());
         }
@@ -75,7 +73,7 @@ namespace AudioSpectrum.RackItems
             }
 
             var filteredSpectrum = mostActiveBands.Select(t => spectrumCopy[t]).ToList();
-            _rack.OutputPipe("Filtered Spectrum", filteredSpectrum, iteration);
+            RackContainer.OutputPipe("Filtered Spectrum", filteredSpectrum, iteration);
         }
 
         private void ChannelCountSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -86,40 +84,30 @@ namespace AudioSpectrum.RackItems
             _numBars = (int)slider.Value;
         }
 
-        public IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem()
         {
             return new FilterSpectrumItem();
         }
 
-        public Dictionary<string, Pipe> GetInputs()
+        public override Dictionary<string, Pipe> GetInputs()
         {
             var inputs = new Dictionary<string, Pipe> {{"Unfiltered Spectrum", SpectrumPipeIn}};
             return inputs;
         }
 
-        public List<string> GetOutputs()
+        public override List<string> GetOutputs()
         {
             var outputs = new List<string> {"Filtered Spectrum"};
             return outputs;
         }
 
-        public void SetRack(RackItemContainer rack)
+        public override void Save(XmlDocument xml, XmlNode parent)
         {
-            _rack = rack;
+            var node = parent.AppendChild(xml.CreateElement("RackItem"));
         }
 
-        public void CleanUp()
+        public override void Load(XmlElement xml)
         {
-        }
-
-        public bool CanDelete()
-        {
-            return true;
-        }
-
-        public void HeartBeat()
-        {
-            
         }
     }
 }

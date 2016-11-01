@@ -6,65 +6,39 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public partial class GraphicEditorItem : UserControl, IRackItem
+    public partial class GraphicEditorItem : RackItemBase
     {
         private readonly ObservableCollection<StaticLedGraphic> _graphics = new ObservableCollection<StaticLedGraphic>();
-        private RackItemContainer _rack;
         private int _selectedIndex;
         private bool _editMode;
-
-        public string ItemName => "Graphic Editor";
 
         public GraphicEditorItem()
         {
             InitializeComponent();
+            ItemName = "Graphic Editor";
             ChannelsListBox.ItemsSource = _graphics;
             LedSimulator.PixelClicked += PixelClicked;
         }
 
-        public bool CanDelete()
-        {
-            return true;
-        }
-
-        public void SetSideRail(SetSideRailDelegate sideRailSetter)
-        {
-            sideRailSetter.Invoke(ItemName, new List<Control>());
-        }
-
-        public void HeartBeat()
-        {
-
-        }
-
-        public void CleanUp()
-        {
-            
-        }
-
-        public IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem()
         {
             return new GraphicEditorItem();
         }
 
-        public Dictionary<string, Pipe> GetInputs()
+        public override Dictionary<string, Pipe> GetInputs()
         {
             var inputs = new Dictionary<string, Pipe> {{"Switch Input", SwitchInput}};
             return inputs;
         }
 
-        public List<string> GetOutputs()
+        public override List<string> GetOutputs()
         {
             var outputs = new List<string> {"Image Out"};
             return outputs;
-        }
-
-        public void SetRack(RackItemContainer rack)
-        {
-            _rack = rack;
         }
 
         private void PixelClicked(int pixelNumber, MouseButtonEventArgs e)
@@ -107,7 +81,7 @@ namespace AudioSpectrum.RackItems
                 if (ChannelsListBox.SelectedIndex < 0) return;
                 if (ChannelsListBox.SelectedIndex >= _graphics.Count) return;
 
-                _rack.OutputPipe("Image Out", _graphics[ChannelsListBox.SelectedIndex].Graphic.ToList(), iteration);
+                RackContainer.OutputPipe("Image Out", _graphics[ChannelsListBox.SelectedIndex].Graphic.ToList(), iteration);
                 return;
             }
 
@@ -136,7 +110,7 @@ namespace AudioSpectrum.RackItems
             }
 
             LedSimulator.Set(compositeGraphic);
-            _rack.OutputPipe("Image Out", compositeGraphic.ToList(), iteration);
+            RackContainer.OutputPipe("Image Out", compositeGraphic.ToList(), iteration);
         }
 
         private void ModeToggleButton_Click(object sender, RoutedEventArgs e)
@@ -149,6 +123,16 @@ namespace AudioSpectrum.RackItems
         {
             var listBox = sender as ListBox;
             if (listBox != null) _selectedIndex = listBox.SelectedIndex;
+        }
+
+        public override void Save(XmlDocument xml, XmlNode parent)
+        {
+            var node = parent.AppendChild(xml.CreateElement("GraphicEditorItem"));
+        }
+
+        public override void Load(XmlElement xml)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

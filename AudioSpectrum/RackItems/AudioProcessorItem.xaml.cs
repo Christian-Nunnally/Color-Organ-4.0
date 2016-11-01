@@ -1,62 +1,43 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public partial class AudioProcessorItem : UserControl, IRackItem
+    [Serializable]
+    public partial class AudioProcessorItem : RackItemBase
     {
-        private RackItemContainer _rack;
-
         private readonly List<List<byte>> _history = new List<List<byte>>();
         private int _current;
-
-        public string ItemName => "Audio Processor";
 
         public AudioProcessorItem()
         {
             InitializeComponent();
+            ItemName = "Audio Processor";
         }
 
-        public void SetSideRail(SetSideRailDelegate sideRailSetter)
+        public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
             sideRailSetter.Invoke(ItemName, new List<Control>());
         }
 
-        public bool CanDelete()
-        {
-            return true;
-        }
-
-        public void HeartBeat()
-        {
-            
-        }
-
-        public void CleanUp()
-        {
-        }
-
-        public IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem()
         {
             return new AudioProcessorItem();
         }
 
-        public Dictionary<string, Pipe> GetInputs()
+        public override Dictionary<string, Pipe> GetInputs()
         {
             var inputs = new Dictionary<string, Pipe> {{"Spectrum Input", SpectrumInput}};
             return inputs;
         }
 
-        public List<string> GetOutputs()
+        public override List<string> GetOutputs()
         {
             var outputs = new List<string> { "Processed Spectrum" };
             return outputs;
-        }
-
-        public void SetRack(RackItemContainer rack)
-        {
-            _rack = rack;
         }
 
         private void SpectrumInput(List<byte> data, int iteration)
@@ -79,7 +60,17 @@ namespace AudioSpectrum.RackItems
             }
 
             var processedData = processedDataInt.Select(t => (byte) (t/samples)).ToList();
-            _rack.OutputPipe("Processed Spectrum", processedData, iteration);
+            RackContainer.OutputPipe("Processed Spectrum", processedData, iteration);
+        }
+
+        public override void Save(XmlDocument xml, XmlNode parent)
+        {
+            var node = parent.AppendChild(xml.CreateElement("AudioProcessorItem"));
+        }
+
+        public override void Load(XmlElement xml)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

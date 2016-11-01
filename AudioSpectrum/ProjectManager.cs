@@ -1,12 +1,6 @@
-﻿
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
-using System.Xml.Serialization;
+using System.Xml;
 using Microsoft.Win32;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
@@ -24,13 +18,13 @@ namespace AudioSpectrum
             {
                 return _project;
             }
-            set
+            private set
             {
                 _project = value;
                 CurrentProjectChanged.Invoke(null, EventArgs.Empty);
             }
         }
-        private Window _window;
+        private readonly Window _window;
 
         public ProjectManager(Window window)
         {
@@ -45,16 +39,26 @@ namespace AudioSpectrum
                     "Save current project", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    // TODO: Save project here.    
+                    SaveCurrentProject();
                 }
 
                 CurrentProject.Close();
             }
 
+            string fileName;
+            if (GetFileNameDialog(out fileName))
+            {
+                CurrentProject = new Project(fileName);
+            }
+        }
+
+        private bool GetFileNameDialog(out string fileName)
+        {
+            fileName = "";
             var ofd = new OpenFileDialog
             {
                 Multiselect = false,
-                FileName = "project1.cos",
+                FileName = "project.cos",
                 AddExtension = true,
                 DefaultExt = "cos",
                 CheckFileExists = false,
@@ -62,13 +66,36 @@ namespace AudioSpectrum
 
             ofd.ShowDialog(_window);
 
-            if (ofd.FileName == "")
+
+
+            if (ofd.FileName == string.Empty)
             {
                 MessageBox.Show(_window, "File path can not be empty.");
-                return;
+                return false;
             }
 
-            CurrentProject = new Project(ofd.FileName);
+            fileName = ofd.FileName;
+            return true;
+        }
+
+        public void SaveCurrentProject()
+        {
+            if (CurrentProject.ProjectPath == string.Empty) return;
+            var doc = CurrentProject.SaveProject();
+            doc.Save(CurrentProject.ProjectPath);
+        }
+
+        public void LoadProject()
+        {
+            string fileName;
+            if (!GetFileNameDialog(out fileName)) return;
+            if (!fileName.EndsWith(".cos"))
+            {
+                MessageBox.Show(_window, "Must be a .cos file");
+            }
+            var doc = new XmlDocument();
+            doc.Load(fileName);
+            CurrentProject = new Project(doc);
         }
     }
 }

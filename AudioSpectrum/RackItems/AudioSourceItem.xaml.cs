@@ -1,23 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public partial class AudioSourceItem : UserControl, IRackItem
+    public partial class AudioSourceItem : RackItemBase
     {
         private static Analyzer Analyzer { get; set; }
-
-        private RackItemContainer _parentRack;
-
-        public string ItemName => "Audio Source";
 
         public AudioSourceItem()
         {
             InitializeComponent();
+            ItemName = "Audio Source";
         }
 
-        public void SetSideRail(SetSideRailDelegate sideRailSetter)
+        public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
             sideRailSetter.Invoke(ItemName, new List<Control>());
         }
@@ -42,48 +40,38 @@ namespace AudioSpectrum.RackItems
 
         private void SendAudioData(List<byte> data)
         {
-            _parentRack?.OutputPipe("Audio Source", data, 0);
+            RackContainer?.OutputPipe("Audio Source", data, 0);
         }
 
-        public List<string> GetOutputs()
+        public override List<string> GetOutputs()
         {
             var outputs = new List<string> {"Audio Source"};
             return outputs;
         }
 
-        public IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem()
         {
             return new AudioSourceItem();
         }
 
-        Dictionary<string, Pipe> IRackItem.GetInputs()
+        public override Dictionary<string, Pipe> GetInputs()
         {
             return new Dictionary<string, Pipe>();
-        }
-
-        public void SetRack(RackItemContainer rack)
-        {
-            _parentRack = rack;
-        }
-
-        public void CleanUp()
-        {
-            //Analyzer.Free();
-        }
-
-        public bool CanDelete()
-        {
-            return true;
-        }
-
-        public void HeartBeat()
-        {
-            
         }
 
         private void LinesUpDownValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (LinesUpDown.Value != null && Analyzer != null) Analyzer.Lines = LinesUpDown.Value.Value;
+        }
+
+        public override void Save(XmlDocument xml, XmlNode parent)
+        {
+            var node = parent.AppendChild(xml.CreateElement("AudioSourceItem"));
+        }
+
+        public override void Load(XmlElement xml)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

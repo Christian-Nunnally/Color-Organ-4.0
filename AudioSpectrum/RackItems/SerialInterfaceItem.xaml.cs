@@ -5,10 +5,11 @@ using System.IO.Ports;
 using System.Windows;
 using System.Windows.Controls;
 using System.Collections.Concurrent;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public partial class SerialInterfaceItem : UserControl, IRackItem
+    public partial class SerialInterfaceItem : RackItemBase
     {
         private const int PacketSize = 64;
 
@@ -21,11 +22,10 @@ namespace AudioSpectrum.RackItems
         private readonly ConcurrentQueue<byte[]> _ouputQueue = new ConcurrentQueue<byte[]>();
         private Thread _arduinoInterfaceBufferThread;
 
-        public string ItemName => "Serial Interface";
-
         public SerialInterfaceItem()
         {
             InitializeComponent();
+            ItemName = "Serial Interface";
             GetPorts();
 
             if (ComPortSelector.Items.Count > 0)
@@ -34,7 +34,7 @@ namespace AudioSpectrum.RackItems
             }
         }
 
-        public void SetSideRail(SetSideRailDelegate sideRailSetter)
+        public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
             sideRailSetter?.Invoke(ItemName, new List<Control>());
         }
@@ -84,10 +84,7 @@ namespace AudioSpectrum.RackItems
                     if (Serial == null) return;
                     SyncCheck.IsEnabled = false;
                     _serialInterfaceExists = false;
-                    while (!_isSerialThreadRunning) { Thread.Sleep(1); }
-                    Serial.Close();
-                    Serial.Dispose();
-                    Serial = null;
+                    while (!_isSerialThreadRunning) { }
                 }
             }
             catch (Exception ex)
@@ -96,24 +93,20 @@ namespace AudioSpectrum.RackItems
             }
         }
 
-        public IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem()
         {
             return new SerialInterfaceItem();
         }
 
-        public Dictionary<string, Pipe> GetInputs()
+        public override Dictionary<string, Pipe> GetInputs()
         {
             var inputs = new Dictionary<string, Pipe> {{"Graphics Input", GraphicsDataIn}};
             return inputs;
         }
 
-        public List<string> GetOutputs()
+        public override List<string> GetOutputs()
         {
             return new List<string>();
-        }
-
-        public void SetRack(RackItemContainer rack)
-        {
         }
 
         private void GraphicsDataIn(List<byte> graphicsData, int iteration)
@@ -150,6 +143,9 @@ namespace AudioSpectrum.RackItems
                     Thread.Sleep(50);
                 }
             }
+            Serial.Close();
+            Serial.Dispose();
+            Serial = null;
             _isSerialThreadRunning = false;
         }
 
@@ -165,20 +161,21 @@ namespace AudioSpectrum.RackItems
             SyncCheck.IsChecked = false;
         }
 
-        public void CleanUp()
+        public override void CleanUp()
         {
-            Serial.Close();
             _serialInterfaceExists = false;
+            while (_isSerialThreadRunning) { }
         }
 
-        public bool CanDelete()
+
+        public override void Save(XmlDocument xml, XmlNode parent)
         {
-            return true;
+            var node = parent.AppendChild(xml.CreateElement("SerialInterfaceItem"));
         }
 
-        public void HeartBeat()
+        public override void Load(XmlElement xml)
         {
-            
+            throw new System.NotImplementedException();
         }
     }
 }

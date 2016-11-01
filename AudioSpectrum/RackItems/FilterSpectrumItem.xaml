@@ -1,9 +1,10 @@
-﻿<UserControl x:Class="AudioSpectrum.RackItems.FilterSpectrumItem"
+﻿<rackItems:RackItemBase x:Class="AudioSpectrum.RackItems.FilterSpectrumItem"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" d:DesignWidth="355" Height="38.494">
+             xmlns:rackItems="clr-namespace:AudioSpectrum.RackItems"
+             mc:Ignorable="d" Height="38.494">
     <Border Background="#eee">
         <Grid Margin="10">
             <Slider x:Name="ChannelCountSlider" HorizontalAlignment="Left" Margin="127,0,0,0" VerticalAlignment="Top" Width="208" ValueChanged="ChannelCountSlider_ValueChanged"/>
@@ -11,4 +12,5 @@
 
         </Grid>
     </Border>
-</UserControl>
+</rackItems:RackItemBase>
+

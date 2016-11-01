@@ -91,6 +91,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ISaveable.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectManager.cs" />
     <Compile Include="RackItems\Analyzer.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="RackArrayControl.xaml.cs">
       <DependentUpon>RackArrayControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RackItems\RackItemBase.cs" />
     <Compile Include="RackItems\RackItemContainer.xaml.cs">
       <DependentUpon>RackItemContainer.xaml</DependentUpon>
     </Compile>
@@ -131,6 +133,7 @@
       <DependentUpon>SpectrumToBinaryDataItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="RackItems\StaticLedGraphic.cs" />
+    <Compile Include="RackSetup.cs" />
     <Page Include="RackItems\AudioProcessorItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

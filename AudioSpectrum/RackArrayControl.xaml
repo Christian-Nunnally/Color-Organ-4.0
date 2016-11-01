@@ -7,19 +7,24 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
     <UserControl.Resources>
+        <ContextMenu x:Key="AddRackContextMenu">
+            <MenuItem Command="audioSpectrum:Commands.AddRackCommand">
+
+            </MenuItem>
+        </ContextMenu>
     </UserControl.Resources>
-    <Grid>
+    <Grid ContextMenu="{StaticResource AddRackContextMenu}">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="173"/>
         </Grid.ColumnDefinitions>
         <Border Grid.Row="1" Grid.Column="0">
-            <audioSpectrum:ContainedItemsControl x:Name="RackPanel" Width="Auto" Margin="1">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <audioSpectrum:ContainedItemsControl x:Name="RackPanel" Width="Auto" Margin="1">
                 <audioSpectrum:ContainedItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel IsItemsHost="True" Orientation="Horizontal"/>
@@ -39,17 +44,17 @@
                     </Style>
                 </audioSpectrum:ContainedItemsControl.ItemContainerStyle>
             </audioSpectrum:ContainedItemsControl>
+            </ScrollViewer>
         </Border>
-        <Button Content="Add Rack" FontSize="20" Grid.Column="1" Margin="4" Click="AddRackButton_Click" Grid.Row="1"/>
-        <Border Grid.Row="0" Grid.ColumnSpan="2" Grid.Column="0">
+        <Border Grid.Row="0" Grid.Column="0">
             <StackPanel Background="#888" x:Name="TopRail" Orientation="Horizontal"></StackPanel>
         </Border>
-        <Border Grid.Row="0" Grid.Column="2">
+        <Border Grid.Row="0" Grid.Column="1">
             <StackPanel Background="#eee" Orientation="Vertical">
                 <Label x:Name="SelectedItemNameLabel" HorizontalContentAlignment="Center" FontSize="24" VerticalContentAlignment="Center" Height="49"/>
             </StackPanel>
         </Border>
-        <Border Grid.Row="1" Grid.Column="2">
+        <Border Grid.Row="1" Grid.Column="1">
             <StackPanel x:Name="SideRail"></StackPanel>
         </Border>
     </Grid>

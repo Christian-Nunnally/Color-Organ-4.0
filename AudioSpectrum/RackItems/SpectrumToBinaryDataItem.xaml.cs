@@ -1,49 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public partial class SpectrumToBinaryDataItem : UserControl, IRackItem
+    public partial class SpectrumToBinaryDataItem : RackItemBase
     {
-        private RackItemContainer _rack;
         private bool _normalize;
         private readonly List<double> _maxs = new List<double>();
         private readonly List<double> _mins = new List<double>();
 
-        public string ItemName => "Spectrum to Binary";
+        private readonly List<byte> _binaryData = new List<byte>();
 
         public SpectrumToBinaryDataItem()
         {
             InitializeComponent();
+            ItemName = "Spectrum to Binary";
         }
 
-        public bool CanDelete()
-        {
-            return true;
-        }
-
-        public void SetSideRail(SetSideRailDelegate sideRailSetter)
+        public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
             sideRailSetter?.Invoke(ItemName, new List<Control>());
         }
 
-        public void HeartBeat()
-        {
-        }
-
-        public void CleanUp()
-        {
-        }
-
-        public IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem()
         {
             return new SpectrumToBinaryDataItem();
         }
 
-        public Dictionary<string, Pipe> GetInputs()
+        public override Dictionary<string, Pipe> GetInputs()
         {
             var inputs = new Dictionary<string, Pipe> {{"Spectrum Input", SpectrumInput}};
             return inputs;
@@ -51,7 +38,8 @@ namespace AudioSpectrum.RackItems
 
         private void SpectrumInput(List<byte> data, int iteration)
         {
-            var binaryData = new List<byte>();
+            while (_binaryData.Count < data.Count) _binaryData.Add(0);
+            while (_binaryData.Count > data.Count) _binaryData.RemoveAt(_binaryData.Count - 1);
 
             if (_normalize)
             {
@@ -66,31 +54,71 @@ namespace AudioSpectrum.RackItems
                     _maxs[i] -= (double)NormalizationDecayDoubleUpDown.Value.Value;
                     _mins[i] += (double)NormalizationDecayDoubleUpDown.Value.Value;
 
-                    binaryData.Add((byte)(Math.Abs(_maxs[i] - _mins[i]) * ActivationPrecentDoubleUpDown.Value) + _mins[i] > data[i] ? (byte)0 : (byte)1);
+                    if ((Math.Abs(_maxs[i] - _mins[i]) * ActivationPrecentDoubleUpDown.Value) + _mins[i] < data[i])
+                    {
+                        _binaryData[i] = 1;
+                    }
+                    else if ((Math.Abs(_maxs[i] - _mins[i]) * DeactivationPrecentDoubleUpDown.Value) + _mins[i] > data[i])
+                    {
+                        _binaryData[i] = 0;
+                    }
                 }
             }
             else
             {
-                binaryData.AddRange(data.Select(@byte => (byte) (255*ActivationPrecentDoubleUpDown.Value) > @byte ? (byte) 0 : (byte) 1));
+                for (var i = 0; i < data.Count; i++)
+                {
+                    if (255 * ActivationPrecentDoubleUpDown.Value < data[i])
+                    {
+                        _binaryData[i] = 1;
+                    }
+                    else if (255 * DeactivationPrecentDoubleUpDown.Value > data[i])
+                    {
+                        _binaryData[i] = 0;
+                    }
+                }
             }
 
-            _rack.OutputPipe("Binary Data Out", binaryData, iteration);
+            RackContainer.OutputPipe("Binary Data Out", _binaryData, iteration);
         }
 
-        public List<string> GetOutputs()
+        public override List<string> GetOutputs()
         {
             var outputs = new List<string> {"Binary Data Out"};
             return outputs;
         }
 
-        public void SetRack(RackItemContainer rack)
-        {
-            _rack = rack;
-        }
-
         private void NormalizeCheckbox_Checked(object sender, RoutedEventArgs e)
         {
             if (NormalizeCheckbox.IsChecked != null) _normalize = NormalizeCheckbox.IsChecked.Value;
+        }
+
+        private void DeactivationPrecentDoubleUpDown_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (ActivationPrecentDoubleUpDown == null) return;
+
+            if (ActivationPrecentDoubleUpDown.Value < DeactivationPrecentDoubleUpDown.Value)
+            {
+                ActivationPrecentDoubleUpDown.Value = DeactivationPrecentDoubleUpDown.Value;
+            }
+        }
+
+        private void ActivationPrecentDoubleUpDown_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (ActivationPrecentDoubleUpDown.Value < DeactivationPrecentDoubleUpDown?.Value)
+            {
+                DeactivationPrecentDoubleUpDown.Value =  ActivationPrecentDoubleUpDown.Value;
+            }
+        }
+
+        public override void Save(XmlDocument xml, XmlNode parent)
+        {
+            var node = parent.AppendChild(xml.CreateElement("SpectrumToBinaryDataItem"));
+        }
+
+        public override void Load(XmlElement xml)
+        {
+            throw new NotImplementedException();
         }
     }
 }

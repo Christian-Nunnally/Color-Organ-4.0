@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AudioSpectrum.RackItems.SpectrumLedItem"
+﻿<local:RackItemBase x:Class="AudioSpectrum.RackItems.SpectrumLedItem"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -10,4 +10,4 @@
         <local:LedDisplay x:Name="LedSimulator" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Center" Width="152" Height="152"/>
 
     </Grid>
-</UserControl>
+</local:RackItemBase>

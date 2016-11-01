@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Xml;
 using AudioSpectrum.RackItems;
 
 namespace AudioSpectrum
 {
-    public partial class RackArrayControl : UserControl
+    public partial class RackArrayControl : UserControl, ISaveable
     {
         private static readonly Dictionary<string, RackItemFactory> RegisteredRackItems = new Dictionary<string, RackItemFactory>();
         private static readonly List<RackArrayControl> AllExistingRackArrays = new List<RackArrayControl>();
@@ -17,7 +19,7 @@ namespace AudioSpectrum
 
         private readonly RackCableManager _rackCableManager = new RackCableManager();
         private readonly List<StackPanel> _rackStackPanels = new List<StackPanel>();
-        public readonly List<Button> RackItemFactoryButtons = new List<Button>();
+        private readonly List<Button> _rackItemFactoryButtons = new List<Button>();
         private const double RackWidth = 400;
 
         private bool _isDown;
@@ -35,23 +37,29 @@ namespace AudioSpectrum
             AllExistingRackArrays.Add(this);
         }
 
-        private void AddRackButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddRack();
-        }
-
-        private void AddRack()
+        public void AddRack(XmlNode xml = null)
         {
             var rackPanel = new StackPanel {Width = RackWidth};
             rackPanel.PreviewMouseLeftButtonUp += StackPanelPreviewMouseLeftButtonUp;
             rackPanel.PreviewMouseLeftButtonDown += StackPanelPreviewMouseLeftButtonDown;
-            //rackPanel.PreviewMouseMove += StackPanelPreviewMouseMove;
             rackPanel.DragEnter += StackPanelDragEnter;
             rackPanel.Drop += StackPanelDrop;
             rackPanel.AllowDrop = true;
             rackPanel.Background = Brushes.White;
             _rackStackPanels.Add(rackPanel);
             RackPanel.Items.Add(rackPanel);
+
+            if (xml == null) return;
+
+            for (var i = 0; i < xml.ChildNodes.Count; i++)
+            {
+                var node = xml.ChildNodes.Item(i);
+                if (node == null) continue;
+                if (node.Name == "RackItem")
+                {
+                    
+                }
+            }
         }
 
         public StackPanel GetRackStackPanel()
@@ -148,7 +156,7 @@ namespace AudioSpectrum
 
         private void PopulateTopRailWithRegisteredRackItems()
         {
-            RackItemFactoryButtons.Clear();
+            _rackItemFactoryButtons.Clear();
             TopRail.Children.Clear();
             var i = 0;
             foreach (var rackItem in RegisteredRackItems)
@@ -177,7 +185,7 @@ namespace AudioSpectrum
                         StackPanelPreviewMouseMove, SelectRackItem);
                 };
 
-                RackItemFactoryButtons.Add(factoryButton);
+                _rackItemFactoryButtons.Add(factoryButton);
                 TopRail.Children.Add(factoryButton);
                 i++;
             }
@@ -198,6 +206,23 @@ namespace AudioSpectrum
         {
             selectedRackItem.SetSideRail(SetSideRail);
             _selectedRackItem = selectedRackItem;
+        }
+
+        public void Save(XmlDocument xml, XmlNode parent)
+        {
+            foreach (var rackStackPanel in _rackStackPanels)
+            {
+                var stackPanelElement = parent.AppendChild(xml.CreateElement("StackPanel"));
+                foreach (var rackItemContainer in rackStackPanel.Children.OfType<RackItemContainer>())
+                {
+                    rackItemContainer.RackItem.Save(xml, stackPanelElement);
+                }
+            }
+        }
+
+        public void Load(XmlElement xml)
+        {
+
         }
     }
 }
