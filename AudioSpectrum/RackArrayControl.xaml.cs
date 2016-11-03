@@ -32,7 +32,6 @@ namespace AudioSpectrum
         public RackArrayControl()
         {
             InitializeComponent();
-            AddRack();
             PopulateTopRailWithRegisteredRackItems();
             AllExistingRackArrays.Add(this);
         }
@@ -50,16 +49,7 @@ namespace AudioSpectrum
             RackPanel.Items.Add(rackPanel);
 
             if (xml == null) return;
-
-            for (var i = 0; i < xml.ChildNodes.Count; i++)
-            {
-                var node = xml.ChildNodes.Item(i);
-                if (node == null) continue;
-                if (node.Name == "RackItem")
-                {
-                    
-                }
-            }
+            Load(xml);
         }
 
         public StackPanel GetRackStackPanel()
@@ -134,6 +124,9 @@ namespace AudioSpectrum
                 rackStackPanel.Children.Remove(_realDragSource);
             }
 
+            var rackItemContainer = _realDragSource as RackItemContainer;
+            if (rackItemContainer != null) rackItemContainer.ContainingPanel = stackPanel;
+
             stackPanel.Children.Insert(droptargetIndex != -1 ? droptargetIndex : stackPanel.Children.Count,
                 _realDragSource);
 
@@ -179,16 +172,20 @@ namespace AudioSpectrum
                     Background = new SolidColorBrush(Color.FromRgb(grayness, grayness, grayness))
                 };
 
-                factoryButton.Click += (sender, args) =>
-                {
-                    var rackContainer = new RackItemContainer(_rackCableManager, this, rackItem.Value(),
-                        StackPanelPreviewMouseMove, SelectRackItem);
-                };
+                factoryButton.Click += (sender, args) => { CreateRackItem(rackItem.Key); };
 
                 _rackItemFactoryButtons.Add(factoryButton);
                 TopRail.Children.Add(factoryButton);
                 i++;
             }
+        }
+
+        private IRackItem CreateRackItem(string rackItemName)
+        {
+            if (!RegisteredRackItems.ContainsKey(rackItemName)) throw new UnregisteredRackItemException();
+            var rackContainer = new RackItemContainer(_rackCableManager, this, RegisteredRackItems[rackItemName](),
+                        StackPanelPreviewMouseMove, SelectRackItem);
+            return rackContainer.RackItem;
         }
 
         private void SetSideRail(string title, IEnumerable<Control> controls)
@@ -220,9 +217,25 @@ namespace AudioSpectrum
             }
         }
 
-        public void Load(XmlElement xml)
+        public void Load(XmlNode xml)
         {
+            for (var i = 0; i < xml.ChildNodes.Count; i++)
+            {
+                var node = xml.ChildNodes.Item(i);
 
+                var splitName = node?.Name.Split('-');
+                if (splitName?.Length > 1)
+                {
+                    if (splitName[0] == "RackItem")
+                    {
+                        CreateRackItem(splitName[1]).Load(node);
+                    }
+                }
+            }
         }
+    }
+
+    internal class UnregisteredRackItemException : Exception
+    {
     }
 }

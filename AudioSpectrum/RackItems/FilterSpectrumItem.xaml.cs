@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,15 +13,13 @@ namespace AudioSpectrum.RackItems
         private int _maxBars;
         private int _numBars;
 
-        private const int Decay = 2;
-
-        private readonly List<byte> _spectrumMax = new List<byte>();
-        private readonly List<byte> _spectrumMin = new List<byte>();
+        private readonly List<double> _spectrumMax = new List<double>();
+        private readonly List<double> _spectrumMin = new List<double>();
 
         public FilterSpectrumItem()
         {
             InitializeComponent();
-            ItemName = "Filter Spectrum";
+            ItemName = "FilterSpectrum";
         }
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
@@ -32,6 +31,7 @@ namespace AudioSpectrum.RackItems
         {
             var spectrumCopy = spectrum.ToList();
             _maxBars = spectrumCopy.Count;
+            ChannelCountSlider.Maximum = _maxBars;
 
             while (_spectrumMax.Count < spectrumCopy.Count)
             {
@@ -45,8 +45,8 @@ namespace AudioSpectrum.RackItems
 
             for (var i = 0; i < spectrumCopy.Count; i++)
             {
-                _spectrumMax[i] -= Decay;
-                _spectrumMin[i] += Decay;
+                _spectrumMax[i] -= DecayUpDown.Value.Value;
+                _spectrumMin[i] += DecayUpDown.Value.Value;
                 _spectrumMax[i] = Math.Max(_spectrumMax[i], spectrumCopy[i]);
                 _spectrumMin[i] = Math.Min(_spectrumMin[i], spectrumCopy[i]);
                 if (_spectrumMax[i] < _spectrumMin[i]) _spectrumMax[i] = _spectrumMin[i];
@@ -64,7 +64,7 @@ namespace AudioSpectrum.RackItems
                 var bandRanges = new List<int>();
                 for (var i = lowerBound; i <= upperBound; i++)
                 {
-                    bandRanges.Add(_spectrumMax[i] - _spectrumMin[i]);
+                    bandRanges.Add((int)(_spectrumMax[i] - _spectrumMin[i]));
                 }
                 if (bandRanges.Count > 0)
                 {
@@ -80,7 +80,6 @@ namespace AudioSpectrum.RackItems
         {
             var slider = sender as Slider;
             if (slider == null) return;
-            slider.Maximum = _maxBars;
             _numBars = (int)slider.Value;
         }
 
@@ -103,11 +102,44 @@ namespace AudioSpectrum.RackItems
 
         public override void Save(XmlDocument xml, XmlNode parent)
         {
-            var node = parent.AppendChild(xml.CreateElement("RackItem"));
+            var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
+            node.AppendChild(xml.CreateElement("DecayValue")).InnerText = DecayUpDown.Value.ToString();
+            node.AppendChild(xml.CreateElement("NumberOfBars")).InnerText = ChannelCountSlider.Value.ToString(CultureInfo.InvariantCulture);
+            SaveInputs(xml, node);
+            SaveOutputs(xml, node);
         }
 
-        public override void Load(XmlElement xml)
+        public override void Load(XmlNode xml)
         {
+            for (var i = 0; i < xml.ChildNodes.Count; i++)
+            {
+                var node = xml.ChildNodes.Item(i);
+                if (node == null) continue;
+
+                switch (node.Name)
+                {
+                    case "DecayValue":
+                        int decay;
+                        if (int.TryParse(node.InnerText, out decay))
+                        {
+                            DecayUpDown.Value = decay;
+                        }
+                        break;
+                    case "NumberOfBars":
+                        double numberOfBars;
+                        if (double.TryParse(node.InnerText, out numberOfBars))
+                        {
+                            ChannelCountSlider.Value = numberOfBars;
+                        }
+                        break;
+                    case "Outputs":
+                        LoadOutputs(node);
+                        break;
+                    case "Inputs":
+                        LoadInputs(node);
+                        break;
+                }
+            }
         }
     }
 }

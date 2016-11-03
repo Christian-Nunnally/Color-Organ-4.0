@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
@@ -17,7 +18,7 @@ namespace AudioSpectrum.RackItems
         public SpectrumToBinaryDataItem()
         {
             InitializeComponent();
-            ItemName = "Spectrum to Binary";
+            ItemName = "SpectrumToBinary";
         }
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
@@ -113,12 +114,37 @@ namespace AudioSpectrum.RackItems
 
         public override void Save(XmlDocument xml, XmlNode parent)
         {
-            var node = parent.AppendChild(xml.CreateElement("SpectrumToBinaryDataItem"));
+            var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
+            node.AppendChild(xml.CreateElement("ActivationPrecent")).InnerText = ActivationPrecentDoubleUpDown.Value.ToString();
+            node.AppendChild(xml.CreateElement("DeactivationPrecent")).InnerText = DeactivationPrecentDoubleUpDown.Value.ToString();
+            node.AppendChild(xml.CreateElement("Normalize")).InnerText = (NormalizeCheckbox.IsChecked != null && NormalizeCheckbox.IsChecked.Value).ToString();
+            SaveOutputs(xml, node);
+            SaveInputs(xml, node);
         }
 
-        public override void Load(XmlElement xml)
+        public override void Load(XmlNode xml)
         {
-            throw new NotImplementedException();
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+            {
+                switch (node.Name)
+                {
+                    case "ActivationPrecent":
+                        ActivationPrecentDoubleUpDown.Value = double.Parse(node.InnerText);
+                        break;
+                    case "DeactivationPrecent":
+                        DeactivationPrecentDoubleUpDown.Value = double.Parse(node.InnerText);
+                        break;
+                    case "Normalize":
+                        NormalizeCheckbox.IsChecked = bool.Parse(node.InnerText);
+                        break;
+                    case "Outputs":
+                        LoadOutputs(node);
+                        break;
+                    case "Inputs":
+                        LoadInputs(node);
+                        break;
+                }
+            }
         }
     }
 }

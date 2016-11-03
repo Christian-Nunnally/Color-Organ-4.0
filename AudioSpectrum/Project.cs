@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Xml;
 
@@ -9,7 +8,7 @@ namespace AudioSpectrum
     public class Project
     {
         public string ProjectName { get; }
-        public string ProjectPath{ get; private set; }
+        public string ProjectPath{ get; }
 
         public readonly ObservableCollection<RackSetup> RackSetups = new ObservableCollection<RackSetup>();
 
@@ -40,17 +39,30 @@ namespace AudioSpectrum
         public Project(XmlDocument xml)
         {
             if (xml.DocumentElement == null) throw new ProjectLoadException();
-            ProjectPath = xml.DocumentElement?.InnerText;
-            var sp = ProjectPath?.Split('\\');
-            ProjectName = sp.Length > 0 ? sp[sp.Length - 1].Split('.')[0] : "Invalid Project Name".Split('.')[0];
-
             for (var i = 0; i < xml.DocumentElement.ChildNodes.Count; i++)
             {
                 var node = xml.DocumentElement.ChildNodes.Item(i);
-                if (node != null && node.Name == "RackSetups")
+                if (node == null) continue;
+                switch (node.Name)
                 {
-                    AddSetup(node.InnerText, node);
+                    case "ProjectPath":
+                        ProjectPath = node.InnerText;
+                        var sp = ProjectPath?.Split('\\');
+                        ProjectName = sp.Length > 0 ? sp[sp.Length - 1].Split('.')[0] : "Invalid Project Name".Split('.')[0];
+                        break;
+                    case "RackSetups":
+                        LoadRackSetups(node);
+                        break;
                 }
+            }
+        }
+
+        private void LoadRackSetups(XmlNode node)
+        {
+            foreach (var rackSetupNode in node.ChildNodes.OfType<XmlNode>())
+            {
+                if (rackSetupNode.Name != "RackSetup") continue;
+                AddSetup("", rackSetupNode);
             }
         }
 
@@ -59,6 +71,18 @@ namespace AudioSpectrum
             if (RackSetups.Any(rackSetup => rackSetup.Name == setupName))
             {
                 return;
+            }
+
+            if (xml != null)
+            {
+                foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+                {
+                    if (node.Name == "SetupName") setupName = node.InnerText;
+                }
+            }
+            else if (setupName == string.Empty)
+            {
+                throw new InvalidOperationException("Must supply an xml node to retrive the setup name from if the setup name is left blank.");
             }
 
             var setup = new RackSetup(setupName);
@@ -71,7 +95,7 @@ namespace AudioSpectrum
                 if (node == null) continue;
                 if (node.Name == "StackPanel")
                 {
-                    setup.RackArrayControl.AddRack();
+                    setup.RackArrayControl.AddRack(node);
                 }
             }
         }
@@ -79,8 +103,9 @@ namespace AudioSpectrum
         public XmlDocument SaveProject()
         {
             var xml = new XmlDocument();
-            var projectElement = xml.AppendChild(xml.CreateElement("Project"));
-            if (projectElement != null) projectElement.InnerText = ProjectPath;
+            xml.AppendChild(xml.CreateElement("Project"));
+            if (xml.DocumentElement == null) throw new ProjectLoadException();
+            xml.DocumentElement.AppendChild(xml.CreateElement("ProjectPath")).InnerText = ProjectPath;
 
             var rackSetupElement = xml.DocumentElement?.AppendChild(xml.CreateElement("RackSetups"));
 

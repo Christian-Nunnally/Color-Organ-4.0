@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml;
 
 namespace AudioSpectrum
@@ -24,13 +25,16 @@ namespace AudioSpectrum
         public void Save(XmlDocument xml, XmlNode parent)
         {
             var rackElement = parent.AppendChild(xml.CreateElement("RackSetup"));
-            rackElement.InnerText = Name;
+            rackElement.AppendChild(xml.CreateElement("SetupName")).InnerText = Name;
             RackArrayControl.Save(xml, rackElement);
         }
 
-        public void Load(XmlElement xml)
+        public void Load(XmlNode xml)
         {
-            Name = xml.InnerText;
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+            {
+                if (node.Name == "Name") Name = node.InnerText;
+            }
         }
     }
 }

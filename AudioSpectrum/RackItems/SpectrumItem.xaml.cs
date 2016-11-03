@@ -74,12 +74,25 @@ namespace AudioSpectrum.RackItems
 
         public override void Save(XmlDocument xml, XmlNode parent)
         {
-            var node = parent.AppendChild(xml.CreateElement("SpectrumItem"));
+            var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
+            SaveOutputs(xml, node);
+            SaveInputs(xml, node);
         }
 
-        public override void Load(XmlElement xml)
+        public override void Load(XmlNode xml)
         {
-            throw new System.NotImplementedException();
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+            {
+                switch (node.Name)
+                {
+                    case "Outputs":
+                        LoadOutputs(node);
+                        break;
+                    case "Inputs":
+                        LoadInputs(node);
+                        break;
+                }
+            }
         }
     }
 }

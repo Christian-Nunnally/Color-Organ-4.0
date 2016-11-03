@@ -30,14 +30,14 @@ namespace AudioSpectrum
 
         private static void RegisterRackItems()
         {
-            RackArrayControl.RegisterRackItem("Audio Source", new AudioSourceItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem("Spectrum", new SpectrumItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem("Led Panel", new SpectrumLedItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem("Serial Interface", new SerialInterfaceItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem("Spectrum Filter", new FilterSpectrumItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem("Graphic Editor", new GraphicEditorItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem("Binary Converter", new SpectrumToBinaryDataItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem("Processor", new AudioProcessorItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new AudioSourceItem().ItemName, new AudioSourceItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SpectrumItem().ItemName, new SpectrumItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SpectrumLedItem().ItemName, new SpectrumLedItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SerialInterfaceItem().ItemName, new SerialInterfaceItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new FilterSpectrumItem().ItemName, new FilterSpectrumItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new GraphicEditorItem().ItemName, new GraphicEditorItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SpectrumToBinaryDataItem().ItemName, new SpectrumToBinaryDataItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new AudioProcessorItem().ItemName, new AudioProcessorItem().CreateRackItem);
         }
 
         private void NewProject()

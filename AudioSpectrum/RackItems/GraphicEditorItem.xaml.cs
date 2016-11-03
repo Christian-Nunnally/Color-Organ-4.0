@@ -19,7 +19,7 @@ namespace AudioSpectrum.RackItems
         public GraphicEditorItem()
         {
             InitializeComponent();
-            ItemName = "Graphic Editor";
+            ItemName = "GraphicEditor";
             ChannelsListBox.ItemsSource = _graphics;
             LedSimulator.PixelClicked += PixelClicked;
         }
@@ -66,12 +66,30 @@ namespace AudioSpectrum.RackItems
         private void AddChannelButton_Click(object sender, RoutedEventArgs e)
         {
             if (ChannelNameTextBox.Text == string.Empty) return;
+            AddChannel(ChannelNameTextBox.Text);
+        }
+
+        public override void SetSideRail(SetSideRailDelegate sideRailSetter)
+        {
+            sideRailSetter.Invoke(ItemName, new List<Control>());
+        }
+
+        private StaticLedGraphic AddChannel(XmlNode xml)
+        {
+            return AddChannel(string.Empty, xml);
+        }
+
+        private StaticLedGraphic AddChannel(string channelName, XmlNode xml = null)
+        {
             if (_graphics.Any(graphic => graphic.Name == ChannelNameTextBox.Text))
             {
-                return;
+                return null;
             }
 
-            _graphics.Add(new StaticLedGraphic(ChannelNameTextBox.Text));
+            var staticGraphic = channelName == string.Empty && xml != null ? new StaticLedGraphic(xml) : new StaticLedGraphic(channelName);
+            _graphics.Add(staticGraphic);
+            ChannelNameTextBox.Text = "Graphic " + (_graphics.Count + 1);
+            return staticGraphic;
         }
 
         private void SwitchInput(List<byte> binaryData, int iteration)
@@ -81,6 +99,7 @@ namespace AudioSpectrum.RackItems
                 if (ChannelsListBox.SelectedIndex < 0) return;
                 if (ChannelsListBox.SelectedIndex >= _graphics.Count) return;
 
+                //LedSimulator.Set(_graphics[ChannelsListBox.SelectedIndex].Graphic);
                 RackContainer.OutputPipe("Image Out", _graphics[ChannelsListBox.SelectedIndex].Graphic.ToList(), iteration);
                 return;
             }
@@ -123,16 +142,41 @@ namespace AudioSpectrum.RackItems
         {
             var listBox = sender as ListBox;
             if (listBox != null) _selectedIndex = listBox.SelectedIndex;
+
+            if (ChannelsListBox.SelectedIndex < 0) return;
+            if (ChannelsListBox.SelectedIndex >= _graphics.Count) return;
+
+            LedSimulator.Set(_graphics[_selectedIndex].Graphic);
         }
 
         public override void Save(XmlDocument xml, XmlNode parent)
         {
-            var node = parent.AppendChild(xml.CreateElement("GraphicEditorItem"));
+            var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
+            foreach (var staticLedGraphic in _graphics)
+            {
+                staticLedGraphic.Save(xml, node);
+            }
+            SaveOutputs(xml, node);
+            SaveInputs(xml, node);
         }
 
-        public override void Load(XmlElement xml)
+        public override void Load(XmlNode xml)
         {
-            throw new System.NotImplementedException();
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+            {
+                switch (node.Name)
+                {
+                    case "StaticGraphic":
+                        AddChannel(node);
+                        break;
+                    case "Outputs":
+                        LoadOutputs(node);
+                        break;
+                    case "Inputs":
+                        LoadInputs(node);
+                        break;
+                }
+            }
         }
     }
 }

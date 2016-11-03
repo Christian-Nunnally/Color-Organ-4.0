@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
@@ -12,7 +13,7 @@ namespace AudioSpectrum.RackItems
         public AudioSourceItem()
         {
             InitializeComponent();
-            ItemName = "Audio Source";
+            ItemName = "AudioSource";
         }
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
@@ -66,12 +67,27 @@ namespace AudioSpectrum.RackItems
 
         public override void Save(XmlDocument xml, XmlNode parent)
         {
-            var node = parent.AppendChild(xml.CreateElement("AudioSourceItem"));
+            var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
+            SaveOutputs(xml, node);
+            SaveInputs(xml, node);
         }
 
-        public override void Load(XmlElement xml)
+        public override void Load(XmlNode xml)
         {
-            throw new System.NotImplementedException();
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+            {
+                switch (node.Name)
+                {
+                    case "Outputs":
+                        LoadOutputs(node);
+                        break;
+                    case "Inputs":
+                        LoadInputs(node);
+                        break;
+                }
+            }
         }
+
+
     }
 }

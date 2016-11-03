@@ -16,7 +16,7 @@ namespace AudioSpectrum.RackItems
         private static int _rackId;
         private readonly int _id;
 
-        private readonly StackPanel _containingPanel;
+        public StackPanel ContainingPanel;
         public IRackItem RackItem { get; }
 
         private readonly Dictionary<string, ComboBox> _inputSelectors = new Dictionary<string, ComboBox>();
@@ -55,9 +55,9 @@ namespace AudioSpectrum.RackItems
             RackCableManager = rackCableManager;
             RackCableManager.AddRack(this);
 
-            _containingPanel = rackArray.GetRackStackPanel();
+            ContainingPanel = rackArray.GetRackStackPanel();
             RackItem = rackItem;
-            _containingPanel.Children.Add(this);
+            ContainingPanel.Children.Add(this);
             AdditionalContent = rackItem;
 
             _dragItemEventHandler = mouseMovePreviewEventHandler;
@@ -82,7 +82,7 @@ namespace AudioSpectrum.RackItems
                 RoutedEvent = PreviewMouseMoveEvent,
                 Source = this,
             };
-            _dragItemEventHandler.Invoke(_containingPanel, alteredMouseArgs);
+            _dragItemEventHandler.Invoke(ContainingPanel, alteredMouseArgs);
         }
 
         private void ContentPropertyChanged(object sender, EventArgs e)
@@ -182,6 +182,16 @@ namespace AudioSpectrum.RackItems
             return _outputTextboxs.Select(textBox => textBox.Value.Text).ToList();
         }
 
+        public IDictionary<string, string> GetInternalToExternalOutputNames()
+        {
+            return _outputTextboxs.ToDictionary(output => output.Key, output => output.Value.Text);
+        }
+
+        public IDictionary<string, string> GetInputToConnectedOutputNames()
+        {
+            return _inputSelectors.ToDictionary(input => input.Key, input => input.Value.SelectedValue?.ToString());
+        }
+
         public void OutputPipe(string outputName, List<byte> data, int iteration)
         {
             RackCableManager.OutputPipe(_outputTextboxs[outputName].Text, data, iteration);
@@ -190,9 +200,31 @@ namespace AudioSpectrum.RackItems
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             RackCableManager.RemoveRack(this);
-            _containingPanel.Children.Remove(this);
+            ContainingPanel.Children.Remove(this);
 
             RackItem?.CleanUp();
+        }
+
+        public void RenameOutputs(IDictionary<string, string> renameMap)
+        {
+            foreach (var rename in renameMap)
+            {
+                if (_outputTextboxs.ContainsKey(rename.Key))
+                {
+                    _outputTextboxs[rename.Key].Text = rename.Value;
+                }
+            }
+        }
+
+        public void SetInputs(IDictionary<string, string> setMap)
+        {
+            foreach (var set in setMap)
+            {
+                if (_inputSelectors.ContainsKey(set.Key))
+                {
+                    _inputSelectors[set.Key].SelectedValue = set.Value;
+                }
+            }
         }
     }
 }

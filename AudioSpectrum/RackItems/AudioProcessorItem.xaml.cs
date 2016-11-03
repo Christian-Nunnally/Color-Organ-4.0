@@ -15,7 +15,7 @@ namespace AudioSpectrum.RackItems
         public AudioProcessorItem()
         {
             InitializeComponent();
-            ItemName = "Audio Processor";
+            ItemName = "AudioProcessor";
         }
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
@@ -65,12 +65,33 @@ namespace AudioSpectrum.RackItems
 
         public override void Save(XmlDocument xml, XmlNode parent)
         {
-            var node = parent.AppendChild(xml.CreateElement("AudioProcessorItem"));
+            var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
+            SaveInputs(xml, parent);
+            SaveOutputs(xml, parent);
+            node.AppendChild(xml.CreateElement("NumberOfSamples")).InnerText = NumberOfSamplesUpDown.Value.ToString();
         }
 
-        public override void Load(XmlElement xml)
+        public override void Load(XmlNode xml)
         {
-            throw new System.NotImplementedException();
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+            {
+                switch (node.Name)
+                {
+                    case "NumberOfSamples":
+                        int numberOfSamples;
+                        if (int.TryParse(node.InnerText, out numberOfSamples))
+                        {
+                            NumberOfSamplesUpDown.Value = numberOfSamples;
+                        }
+                        break;
+                    case "Outputs":
+                        LoadOutputs(node);
+                        break;
+                    case "Inputs":
+                        LoadInputs(node);
+                        break;
+                }
+            }
         }
     }
 }

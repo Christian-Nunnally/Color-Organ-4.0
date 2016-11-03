@@ -80,6 +80,7 @@ namespace AudioSpectrum
 
         public void SaveCurrentProject()
         {
+            if (CurrentProject == null) return;
             if (CurrentProject.ProjectPath == string.Empty) return;
             var doc = CurrentProject.SaveProject();
             doc.Save(CurrentProject.ProjectPath);

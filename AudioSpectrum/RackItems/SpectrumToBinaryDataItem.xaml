@@ -6,8 +6,8 @@
              xmlns:local="clr-namespace:AudioSpectrum.RackItems"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="AudioSpectrum.RackItems.SpectrumToBinaryDataItem"
              mc:Ignorable="d" 
-             Height="67.364">
-    <Grid Background="White" Margin="0,0,0,-22">
+             Height="88.708">
+    <Grid Background="White">
         <Grid Margin="10">
             <CheckBox x:Name="NormalizeCheckbox" Content="Normalize" HorizontalAlignment="Left" Margin="176,49,0,0" Checked="NormalizeCheckbox_Checked" Unchecked="NormalizeCheckbox_Checked" Height="15" VerticalAlignment="Top"/>
 

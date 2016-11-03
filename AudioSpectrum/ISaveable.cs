@@ -7,6 +7,6 @@ namespace AudioSpectrum
     {
         void Save(XmlDocument xml, XmlNode parent);
 
-        void Load(XmlElement xml);
+        void Load(XmlNode xml);
     }
 }
