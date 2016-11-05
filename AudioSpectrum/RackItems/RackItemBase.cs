@@ -7,6 +7,7 @@ namespace AudioSpectrum.RackItems
 {
     public abstract class RackItemBase : UserControl, IRackItem
     {
+        protected List<RackItemInput> RackItemInputs = new List<RackItemInput>();
         protected const string RackItemName = "RackItem";
 
         public RackItemContainer RackContainer;

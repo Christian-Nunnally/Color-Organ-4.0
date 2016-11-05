@@ -220,10 +220,10 @@ namespace AudioSpectrum.RackItems
         {
             foreach (var set in setMap)
             {
-                if (_inputSelectors.ContainsKey(set.Key))
-                {
+                //if (_inputSelectors.ContainsKey(set.Key))
+                //{
                     _inputSelectors[set.Key].SelectedValue = set.Value;
-                }
+                //}
             }
         }
     }

@@ -38,7 +38,6 @@ namespace AudioSpectrum
             {
                 var i = 0;
                 while (_outputToInputs.ContainsKey(outputName + (i == 0 ? "" : i.ToString()))) { i++; }
-
                 _outputToInputs.Add(outputName + (i == 0 ? "" : i.ToString()), new List<Pipe>());
             }
 
@@ -119,14 +118,18 @@ namespace AudioSpectrum
             var oldName = (string)outputTextBox.Tag;
             outputTextBox.Tag = outputTextBox.Text;
 
-            var oldInputPipes = new List<Pipe>();
-            if (oldName != null && _outputToInputs.ContainsKey(oldName))
+            // Only update other inputs if there are no other outputs with this name.
+            if (!GetOutputNameList().Contains(oldName))
             {
-                oldInputPipes = _outputToInputs[oldName];
-                _outputToInputs.Remove(oldName);
+                var oldInputPipes = new List<Pipe>();
+                if (oldName != null && _outputToInputs.ContainsKey(oldName))
+                {
+                    oldInputPipes = _outputToInputs[oldName];
+                    _outputToInputs.Remove(oldName);
+                }
+                _outputToInputs.Add(outputTextBox.Text, oldInputPipes);
             }
 
-            _outputToInputs.Add(outputTextBox.Text, oldInputPipes);
             UpdateInputLists();
         }
 
@@ -134,9 +137,10 @@ namespace AudioSpectrum
         {
             while (true)
             {
-                foreach (var rackItemContainer in _racks)
+                for (var i = _racks.Count - 1; i >= 0; i--)
                 {
-                    var rackItem = rackItemContainer.RackItem;
+                    if (i >= _racks.Count) continue;
+                    var rackItem = _racks[i].RackItem;
                     rackItem?.HeartBeat();
                 }
                 Thread.Sleep(50);

@@ -66,8 +66,8 @@ namespace AudioSpectrum.RackItems
         public override void Save(XmlDocument xml, XmlNode parent)
         {
             var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
-            SaveInputs(xml, parent);
             SaveOutputs(xml, parent);
+            SaveInputs(xml, parent);
             node.AppendChild(xml.CreateElement("NumberOfSamples")).InnerText = NumberOfSamplesUpDown.Value.ToString();
         }
 
