@@ -1,41 +1,33 @@
 ﻿using System;
 using System.Linq;
 using System.Xml;
-using AudioSpectrum.RackItems;
 
 namespace AudioSpectrum
 {
-    public class RackItemInput : ISaveable
+    public class RackItemOutput : ISaveable
     {
         public string VisibleName { get; set; }
 
         public long Key { get; private set; }
+        public int OutputNumber { get; internal set; }
 
-        public Pipe Pipe { get; set; }
-
-        public int InputNumber { get; set; }
-
-        public string ConnectedOutput { get; set; }
-
-        public RackItemInput(string visibleName, Pipe pipeIn)
+        public RackItemOutput(string visibleName)
         {
             VisibleName = visibleName;
-            Key = (long) (new Random().NextDouble() * long.MaxValue);
-            Pipe = pipeIn;
+            Key = (long)(new Random().NextDouble() * long.MaxValue);
         }
 
-        public RackItemInput(XmlNode xml)
+        public RackItemOutput(XmlNode xml)
         {
             Load(xml);
         }
 
         public void Save(XmlDocument xml, XmlNode parent)
         {
-            var node = parent.AppendChild(xml.CreateElement("Input"));
+            var node = parent.AppendChild(xml.CreateElement("Output"));
             node.AppendChild(xml.CreateElement("VisibleName")).InnerText = VisibleName;
             node.AppendChild(xml.CreateElement("Key")).InnerText = Key.ToString();
-            node.AppendChild(xml.CreateElement("InputNumber")).InnerText = InputNumber.ToString();
-            node.AppendChild(xml.CreateElement("ConnectedOutput")).InnerText = ConnectedOutput;
+            node.AppendChild(xml.CreateElement("OutputNumber")).InnerText = OutputNumber.ToString();
         }
 
         public void Load(XmlNode xml)
@@ -50,14 +42,16 @@ namespace AudioSpectrum
                     case "Key":
                         Key = long.Parse(node.InnerText);
                         break;
-                    case "InputNumber":
-                        InputNumber = int.Parse(node.InnerText);
-                        break;
-                    case "ConnectedOutput":
-                        ConnectedOutput = node.InnerText;
+                    case "OutputNumber":
+                        OutputNumber = int.Parse(node.InnerText);
                         break;
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            return VisibleName;
         }
     }
 }

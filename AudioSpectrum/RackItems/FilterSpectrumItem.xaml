@@ -4,17 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:rackItems="clr-namespace:AudioSpectrum.RackItems"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" x:Class="AudioSpectrum.RackItems.FilterSpectrumItem"
-             mc:Ignorable="d" Height="60">
-    <Border Background="#eee">
-        <Grid Margin="10">
-            <Slider x:Name="ChannelCountSlider" HorizontalAlignment="Left" Margin="127,0,0,0" VerticalAlignment="Top" Width="208" ValueChanged="ChannelCountSlider_ValueChanged"/>
-            <Label Content="Number of channels" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.478,0.171" Margin="0,-5,0,0"/>
-            <Label Content="Decay" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.478,0.171" Margin="0,17,0,-3"/>
+             xmlns:system="clr-namespace:System.Windows;assembly=System"
+            
+             x:Class="AudioSpectrum.RackItems.FilterSpectrumItem"
+             mc:Ignorable="d" Height="0">
+    <rackItems:RackItemBase.Resources>
 
-            <xctk:DoubleUpDown x:Name="DecayUpDown" HorizontalAlignment="Left" Margin="127,20,0,0" Minimum="0.1" Maximum="5.0" Increment="0.1" Value="1.0" VerticalAlignment="Top" Width="41"/>
-
-        </Grid>
-    </Border>
+    </rackItems:RackItemBase.Resources>
 </rackItems:RackItemBase>
 

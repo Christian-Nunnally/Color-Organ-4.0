@@ -1,16 +1,24 @@
 ﻿ using System;
 using System.Collections.Generic;
-using System.Threading;
+ using System.Collections.ObjectModel;
+ using System.Threading;
 using System.Windows.Controls;
 using AudioSpectrum.RackItems;
 
 namespace AudioSpectrum
 {
+    public delegate void MoreOutputsLoaded();
+
     public class RackCableManager
     {
+
         private readonly List<RackItemContainer> _racks = new List<RackItemContainer>();
-        private readonly Dictionary<string, List<Pipe>> _outputToInputs = new Dictionary<string, List<Pipe>>();
-        private readonly Dictionary<string, Pipe> _inputNameToInputPipe = new Dictionary<string, Pipe>();
+        private readonly Dictionary<RackItemOutput, List<RackItemInput>> _outputToInputs = new Dictionary<RackItemOutput, List<RackItemInput>>();
+
+        public readonly ObservableCollection<RackItemOutput> AllRackItemOutputs = new ObservableCollection<RackItemOutput>();
+        public readonly ObservableCollection<RackItemInput> AllRackItemInputs = new ObservableCollection<RackItemInput>();
+
+        public event MoreOutputsLoaded MoreOutputsLoadedDelegate;
 
         public RackCableManager()
         {
@@ -26,111 +34,92 @@ namespace AudioSpectrum
 
         public void RackContentSet(RackItemContainer rack)
         {
-            foreach (var kv in rack.GetInputs())
+            foreach (var output in rack.GetOutputs())
             {
-                var i = 0;
-                while (_inputNameToInputPipe.ContainsKey(kv.Key + (i == 0 ? "" : i.ToString()))) { i++; }
-
-                _inputNameToInputPipe.Add(kv.Key + (i == 0 ? "" : i.ToString()), kv.Value);
+                AllRackItemOutputs.Add(output);
             }
+            MoreOutputsLoadedDelegate?.Invoke();
 
-            foreach (var outputName in rack.GetExternalOutputNames())
+            foreach (var input in rack.GetInputs())
             {
-                var i = 0;
-                while (_outputToInputs.ContainsKey(outputName + (i == 0 ? "" : i.ToString()))) { i++; }
-                _outputToInputs.Add(outputName + (i == 0 ? "" : i.ToString()), new List<Pipe>());
+                AllRackItemInputs.Add(input);
             }
-
-            UpdateInputLists();
         }
 
         public void RemoveRack(RackItemContainer rack)
         {
+            foreach (var output in rack.GetOutputs())
+            {
+                AllRackItemOutputs.Remove(output);
+            }
+
+            foreach (var input in rack.GetInputs())
+            {
+                AllRackItemInputs.Remove(input);
+            }
+
             _racks.Remove(rack);
-            UpdateInputLists();
         }
 
-        public void OutputPipe(string outputName, List<byte> data, int iteration)
+        public void OutputPipe(RackItemOutput output, List<byte> data, int iteration)
         {
             if (iteration > 1000)
             {
                 return;
             }
 
-            foreach (var inputPipe in _outputToInputs[outputName])
+            if (_outputToInputs.ContainsKey(output))
             {
-                inputPipe.Invoke(data, iteration++);
-            }
-        }
-
-        public List<string> GetOutputNameList()
-        {
-            var outputNames = new List<string>();
-
-            foreach (var rack in _racks)
-            {
-                outputNames.AddRange(rack.GetExternalOutputNames());
-            }
-
-            return outputNames;
-        }
-
-        private void UpdateInputLists()
-        {
-            var outputNames = GetOutputNameList();
-
-            foreach (var rack in _racks)
-            {
-                rack.UpdateInputSelectors(outputNames);
+                foreach (var input in _outputToInputs[output])
+                {
+                    input.Pipe.Invoke(data, iteration++);
+                }
             }
         }
 
         public void InputSelectorSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var inputComboBox = sender as ComboBox;
-            if (inputComboBox == null) return;
-            var inputName = (string)inputComboBox.Tag;
+            var inputComboBox = (ComboBox) sender;
+            var input = (RackItemInput) inputComboBox.Tag;
+            var output = (RackItemOutput) inputComboBox.SelectedValue;
 
             if (e.RemovedItems.Count > 0)
             {
-                var unselectedItem = (string)e.RemovedItems[0];
+                var unselectedItem = (RackItemOutput)e.RemovedItems[0];
                 if (_outputToInputs.ContainsKey(unselectedItem))
                 {
-                    _outputToInputs[unselectedItem].Remove(_inputNameToInputPipe[inputName]);
+                    _outputToInputs[unselectedItem].Remove(input);
                 }
             }
 
-            if (e.AddedItems.Count <= 0) return;
-            var selectedItem = (string)e.AddedItems[0];
-            _outputToInputs[selectedItem].Add(_inputNameToInputPipe[inputName]);
+            input.ConnectedOutput = "";
+            if (output == null) return;
+
+            if (!_outputToInputs.ContainsKey(output))
+            {
+                _outputToInputs.Add(output, new List<RackItemInput>());
+            }
+
+            input.ConnectedOutput = output.VisibleName;
+            _outputToInputs[output].Add(input);
+
+            foreach (var rackItemContainer in _racks)
+            {
+                rackItemContainer.InputSelectorItemsChanged();
+            }
         }
 
         public void OutputTextBoxTextChanged(object sender, EventArgs e)
         {
             var outputTextBox = (TextBox)sender;
+            var rackItemOutput = (RackItemOutput) outputTextBox.Tag;
 
-            if (_outputToInputs.ContainsKey(outputTextBox.Text))
+            if (_outputToInputs.ContainsKey(rackItemOutput))
             {
-                outputTextBox.Text = (string)outputTextBox.Tag;
-                return;
+                _outputToInputs[rackItemOutput].Clear();
             }
-
-            var oldName = (string)outputTextBox.Tag;
-            outputTextBox.Tag = outputTextBox.Text;
-
-            // Only update other inputs if there are no other outputs with this name.
-            if (!GetOutputNameList().Contains(oldName))
-            {
-                var oldInputPipes = new List<Pipe>();
-                if (oldName != null && _outputToInputs.ContainsKey(oldName))
-                {
-                    oldInputPipes = _outputToInputs[oldName];
-                    _outputToInputs.Remove(oldName);
-                }
-                _outputToInputs.Add(outputTextBox.Text, oldInputPipes);
-            }
-
-            UpdateInputLists();
+            rackItemOutput.VisibleName = outputTextBox.Text;
+            
         }
 
         private void Heartbeat()

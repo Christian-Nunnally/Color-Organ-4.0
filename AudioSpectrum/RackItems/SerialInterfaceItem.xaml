@@ -5,25 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:rackItems="clr-namespace:AudioSpectrum.RackItems"
              mc:Ignorable="d" d:DesignWidth="400" Height="39.5">
-    <Border Background="#eee">
-        <Grid Margin="10">
-            <Grid HorizontalAlignment="Left" Width="380">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="200"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="313.561"/>
-                    <ColumnDefinition Width="26.439"/>
-                    <ColumnDefinition Width="15"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Com Port:" VerticalAlignment="Center" Margin="0,0,257,180" Height="20"/>
-                <ComboBox x:Name="ComPortSelector" VerticalAlignment="Center" Margin="62,0,131,180" DropDownOpened="ComPortSelector_DropDownOpened" Height="20"/>
-                <CheckBox x:Name="SerialEnable" Content="Enable" VerticalAlignment="Center" Margin="188,1,5,179" Click="SerialEnable_Click" Height="20" RenderTransformOrigin="0.458,0.64" Grid.ColumnSpan="2"/>
-                <CheckBox x:Name="SyncCheck" IsEnabled="False" Content="Sync" HorizontalAlignment="Left" Margin="250,1,0,0" VerticalAlignment="Top" Checked="SyncCheck_Checked" Unchecked="SyncCheck_Unchecked"/>
-                <Label x:Name="label" Content="Outgoing: " HorizontalAlignment="Left" VerticalAlignment="Top" Height="31" Width="113" Grid.ColumnSpan="3" Margin="299,-5,-54,0"/>
-                <Label x:Name="OutgoingPacketCountLabel" Content="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="31" Width="113" Margin="16,-5,-113,0" Grid.Column="2"/>
-            </Grid>
-
+    <Border Height="40">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="EnableButton" Content="Enable Serial" Click="EnableButton_Click" Margin="10,10,0,10" />
+            <Rectangle x:Name="EnabledIndicator" Grid.Column="1" Fill="#FF5555" Margin="10" Stroke="#666666" />
         </Grid>
     </Border>
 </rackItems:RackItemBase>

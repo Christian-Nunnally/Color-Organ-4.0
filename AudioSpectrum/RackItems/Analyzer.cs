@@ -8,21 +8,24 @@ using Un4seen.BassWasapi;
 
 namespace AudioSpectrum.RackItems
 {
+    public delegate void PipeOut(List<byte> data);
+
     public class Analyzer
     {
-        public delegate void PipeOut(List<byte> data);
-        
+        public event PipeOut AnalyerDataReady;
+
         private readonly DispatcherTimer _displayRefreshTimer;         //timer that refreshes the display
         private readonly float[] _fft;               //buffer for fft data
         private readonly WASAPIPROC _process;        //callback function to obtain data
         private int _lastlevel;             //last output level
         private int _hanctr;                //last output level counter
         private readonly List<byte> _spectrumdata;   //spectrum data buffer
-        private readonly ComboBox _devicelist;       //device list
+        private Button _enabledButton;
         private bool _initialized;          //initialized flag
         private int _deviceIndex;               //used device index
 
         private int _lines = 16;
+        private ComboBox _enabledComboBox;
 
         public int Lines
         {
@@ -39,10 +42,7 @@ namespace AudioSpectrum.RackItems
             }
         }
 
-        private PipeOut SpectrumPipeOut { get; }
-
-        //ctor
-        public Analyzer(PipeOut pipeOut, ComboBox devicelist)
+        public Analyzer()
         {
             _fft = new float[1024];
             _lastlevel = 0;
@@ -53,62 +53,63 @@ namespace AudioSpectrum.RackItems
             _displayRefreshTimer.IsEnabled = false;
             _process = Process;
             _spectrumdata = new List<byte>();
-            _devicelist = devicelist;
             _initialized = false;
-            SpectrumPipeOut = pipeOut;
-            Init();
+
+            Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATETHREADS, false);
+            var result = Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
+            if (!result) throw new Exception("Init Error");
         }
 
-        //flag for enabling and disabling program functionality
-        public bool Enable
+        public void Enable(Button enableButton, ComboBox deviceList)
         {
-            set
+            //if (_enabledButton != null) _enabledButton.Content = "Enable";
+            _enabledButton = enableButton;
+            _enabledComboBox = deviceList;
+
+            if (!_initialized)
             {
-                if (value)
+                var s = deviceList.Items[deviceList.SelectedIndex] as string;
+                if (s != null)
                 {
-                    if (!_initialized)
-                    {
-                        var s = _devicelist.Items[_devicelist.SelectedIndex] as string;
-                        if (s != null)
-                        {
-                            var array = s.Split(' ');
-                            _deviceIndex = Convert.ToInt32(array[0]);
-                        }
-                        var result = BassWasapi.BASS_WASAPI_Init(_deviceIndex, 0, 0, BASSWASAPIInit.BASS_WASAPI_BUFFER, 1f, 0.05f, _process, IntPtr.Zero);
-                        if (!result)
-                        {
-                            var error = Bass.BASS_ErrorGetCode();
-                            MessageBox.Show(error.ToString());
-                        }
-                        else
-                        {
-                            _initialized = true;
-                            _devicelist.IsEnabled = false;
-                        }
-                    }
-                    BassWasapi.BASS_WASAPI_Start();
+                    var array = s.Split(' ');
+                    _deviceIndex = Convert.ToInt32(array[0]);
                 }
-                else BassWasapi.BASS_WASAPI_Stop(true);
-                System.Threading.Thread.Sleep(500);
-                _displayRefreshTimer.IsEnabled = value;
+                var result = BassWasapi.BASS_WASAPI_Init(_deviceIndex, 0, 0, BASSWASAPIInit.BASS_WASAPI_BUFFER, 1f, 0.05f, _process, IntPtr.Zero);
+                if (!result)
+                {
+                    var error = Bass.BASS_ErrorGetCode();
+                    MessageBox.Show(error.ToString());
+                }
+                else
+                {
+                    _initialized = true;
+                    deviceList.IsEnabled = false;
+                }
             }
+            _displayRefreshTimer.IsEnabled = true;
+            BassWasapi.BASS_WASAPI_Start();
         }
 
-        // initialization
-        private void Init()
+        public void Disable(Button disableButton, ComboBox deviceList)
+        {
+            deviceList.IsEnabled = true;
+            BassWasapi.BASS_WASAPI_Stop(true);
+            BassWasapi.BASS_WASAPI_Free();
+            _initialized = false;
+            _displayRefreshTimer.IsEnabled = false;
+        }
+
+        public void InitDeviceComboBox(ComboBox deviceComboBox)
         {
             for (var i = 0; i < BassWasapi.BASS_WASAPI_GetDeviceCount(); i++)
             {
                 var device = BassWasapi.BASS_WASAPI_GetDeviceInfo(i);
                 if (device.IsEnabled && device.IsLoopback)
                 {
-                    _devicelist.Items.Add($"{i} - {device.name}");
+                    deviceComboBox.Items.Add($"{i} - {device.name}");
                 }
             }
-            _devicelist.SelectedIndex = 0;
-            Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATETHREADS, false);
-            var result = Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
-            if (!result) throw new Exception("Init Error");
+            deviceComboBox.SelectedIndex = 0;
         }
 
         //timer 
@@ -120,13 +121,13 @@ namespace AudioSpectrum.RackItems
             var b0 = 0;
 
             //computes the spectrum data, the code is taken from a bass_wasapi sample.
-            for (x=0; x<Lines; x++)
+            for (x = 0; x < Lines; x++)
             {
                 float peak = 0;
                 var b1 = (int)Math.Pow(2, x * 10.0 / (Lines - 1));
                 if (b1 > 1023) b1 = 1023;
                 if (b1 <= b0) b1 = b0 + 1;
-                for (;b0<b1;b0++)
+                for (; b0 < b1; b0++)
                 {
                     if (peak < _fft[1 + b0]) peak = _fft[1 + b0];
                 }
@@ -135,8 +136,8 @@ namespace AudioSpectrum.RackItems
                 if (y < 0) y = 0;
                 _spectrumdata.Add((byte)y);
             }
-            
-            SpectrumPipeOut.Invoke(_spectrumdata);
+
+            AnalyerDataReady.Invoke(_spectrumdata);
             _spectrumdata.Clear();
 
 
@@ -152,7 +153,7 @@ namespace AudioSpectrum.RackItems
                 Free();
                 Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
                 _initialized = false;
-                Enable = true;
+                Enable(_enabledButton, _enabledComboBox);
             }
         }
 
@@ -163,7 +164,7 @@ namespace AudioSpectrum.RackItems
         }
 
         //cleanup
-        public static void Free()
+        private static void Free()
         {
             BassWasapi.BASS_WASAPI_Free();
             Bass.FreeMe();

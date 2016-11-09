@@ -2,67 +2,103 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Xml;
+using AudioSpectrum.SideRailContainers;
+using Xceed.Wpf.Toolkit;
 
 namespace AudioSpectrum.RackItems
 {
     public partial class AudioSourceItem : RackItemBase
     {
+        private readonly ComboBox _deviceSelectionBox = new ComboBox();
+        private readonly IntegerUpDown _numberOfLinesUpDown = new IntegerUpDown();
+
         private static Analyzer Analyzer { get; set; }
 
-        public AudioSourceItem()
+        private bool _enabled;
+
+        public AudioSourceItem(XmlNode xml)
         {
+            if (Analyzer == null)
+            {
+                Analyzer = new Analyzer();
+            }
+
             InitializeComponent();
             ItemName = "AudioSource";
+
+            _numberOfLinesUpDown.Minimum = 1;
+            _numberOfLinesUpDown.Maximum = 64;
+            _numberOfLinesUpDown.Increment = 1;
+            _numberOfLinesUpDown.Value = 16;
+            _numberOfLinesUpDown.ValueChanged += LinesUpDownValueChanged;
+
+            if (xml == null)
+            {
+                AddOutput(new RackItemOutput("Audio Source"));
+            }
+            else
+            {
+                Load(xml);
+            }
+
+            Analyzer.AnalyerDataReady += SendAudioData;
+            Analyzer.InitDeviceComboBox(_deviceSelectionBox);
         }
+
+        private List<Control> _sideRailControls;
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
-            sideRailSetter.Invoke(ItemName, new List<Control>());
+            if (_sideRailControls == null)
+            {
+                _sideRailControls = new List<Control>
+                {
+                    new LabeledControlSideRailContainer("Device", _deviceSelectionBox, Orientation.Horizontal, 180),
+                    new LabeledControlSideRailContainer("Number of lines", _numberOfLinesUpDown, Orientation.Horizontal,
+                        70)
+                };
+            }
+
+            sideRailSetter.Invoke(ItemName, _sideRailControls);
         }
 
         private void EnableButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Analyzer == null)
+            if ((string) EnableButton.Content == "Disable Source")
             {
-                Analyzer = new Analyzer(SendAudioData, DeviceSelectionBox);
-            }
-            if (EnableButton.IsChecked == true)
-            {
-                EnableButton.Content = "Disable";
-                Analyzer.Enable = true;
+                EnableButton.Content = "Enable Source";
+                Analyzer.Disable(EnableButton, _deviceSelectionBox);
+                EnabledIndicator.Fill = new SolidColorBrush(Color.FromRgb(255, 85, 85));
+                _enabled = false;
             }
             else
             {
-                Analyzer.Enable = false;
-                EnableButton.Content = "Enable";
+                EnableButton.Content = "Disable Source";
+                Analyzer.Enable(EnableButton, _deviceSelectionBox);
+                EnabledIndicator.Fill = new SolidColorBrush(Color.FromRgb(85, 255, 85));
+                _enabled = true;
             }
         }
 
         private void SendAudioData(List<byte> data)
         {
-            RackContainer?.OutputPipe("Audio Source", data, 0);
+            if (!_enabled) return;
+            if (RackItemOutputs.Count > 0)
+            {
+                RackContainer?.OutputPipe(RackItemOutputs.First(), data, 0);
+            }
         }
 
-        public override List<string> GetOutputs()
+        public override IRackItem CreateRackItem(XmlElement xml)
         {
-            var outputs = new List<string> {"Audio Source"};
-            return outputs;
-        }
-
-        public override IRackItem CreateRackItem()
-        {
-            return new AudioSourceItem();
-        }
-
-        public override Dictionary<string, Pipe> GetInputs()
-        {
-            return new Dictionary<string, Pipe>();
+            return new AudioSourceItem(xml);
         }
 
         private void LinesUpDownValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (LinesUpDown.Value != null && Analyzer != null) Analyzer.Lines = LinesUpDown.Value.Value;
+            if (_numberOfLinesUpDown.Value != null && Analyzer != null) Analyzer.Lines = _numberOfLinesUpDown.Value.Value;
         }
 
         public override void Save(XmlDocument xml, XmlNode parent)
@@ -72,20 +108,9 @@ namespace AudioSpectrum.RackItems
             SaveInputs(xml, node);
         }
 
-        public override void Load(XmlNode xml)
+        public sealed override void Load(XmlNode xml)
         {
-            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
-                switch (node.Name)
-                {
-                    case "Outputs":
-                        LoadOutputs(node);
-                        break;
-                    case "Inputs":
-                        LoadInputs(node);
-                        break;
-                }
-            }
+            LoadInputsAndOutputs(xml);
         }
 
 

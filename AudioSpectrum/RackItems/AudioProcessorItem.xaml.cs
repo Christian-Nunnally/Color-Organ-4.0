@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using System.Xml;
+using AudioSpectrum.SideRailContainers;
+using Xceed.Wpf.Toolkit;
 
 namespace AudioSpectrum.RackItems
 {
@@ -12,38 +14,53 @@ namespace AudioSpectrum.RackItems
         private readonly List<List<byte>> _history = new List<List<byte>>();
         private int _current;
 
-        public AudioProcessorItem()
+        private readonly IntegerUpDown _numberOfSamplesUpDown = new IntegerUpDown();
+
+        public AudioProcessorItem(XmlNode xml)
         {
+            _numberOfSamplesUpDown.Minimum = 1;
+            _numberOfSamplesUpDown.Maximum = 16;
+            _numberOfSamplesUpDown.Increment = 1;
+
             InitializeComponent();
             ItemName = "AudioProcessor";
+
+            if (xml == null)
+            {
+                AddInput(new RackItemInput("Spectrum Input", SpectrumInput));
+                AddOutput(new RackItemOutput("Processed Spectrum"));
+            }
+            else
+            {
+                Load(xml);
+            }
         }
+
+        private List<Control> _sideRailControls;
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
-            sideRailSetter.Invoke(ItemName, new List<Control>());
+            if (_sideRailControls == null)
+            {
+                _sideRailControls = new List<Control>
+                {
+                    new LabeledControlSideRailContainer("Number of samples to average", _numberOfSamplesUpDown,
+                        Orientation.Horizontal, 80)
+                };
+
+            }
+            sideRailSetter.Invoke(ItemName, _sideRailControls);
         }
 
-        public override IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem(XmlElement xml)
         {
-            return new AudioProcessorItem();
-        }
-
-        public override Dictionary<string, Pipe> GetInputs()
-        {
-            var inputs = new Dictionary<string, Pipe> {{"Spectrum Input", SpectrumInput}};
-            return inputs;
-        }
-
-        public override List<string> GetOutputs()
-        {
-            var outputs = new List<string> { "Processed Spectrum" };
-            return outputs;
+            return new AudioProcessorItem(xml);
         }
 
         private void SpectrumInput(List<byte> data, int iteration)
         {
-            if (NumberOfSamplesUpDown.Value == null) return;
-            var samples = NumberOfSamplesUpDown.Value.Value;
+            if (_numberOfSamplesUpDown.Value == null) return;
+            var samples = _numberOfSamplesUpDown.Value.Value;
             while (_history.Count < samples) _history.Add(new List<byte>());
             while (_history.Count > samples) _history.RemoveAt(_history.Count - 1);
 
@@ -60,19 +77,25 @@ namespace AudioSpectrum.RackItems
             }
 
             var processedData = processedDataInt.Select(t => (byte) (t/samples)).ToList();
-            RackContainer.OutputPipe("Processed Spectrum", processedData, iteration);
+            if (RackItemOutputs.Count > 0)
+            {
+                RackContainer.OutputPipe(RackItemOutputs.First(), processedData, iteration);
+            }
         }
 
         public override void Save(XmlDocument xml, XmlNode parent)
         {
             var node = parent.AppendChild(xml.CreateElement(RackItemName + "-" + ItemName));
-            SaveOutputs(xml, parent);
-            SaveInputs(xml, parent);
-            node.AppendChild(xml.CreateElement("NumberOfSamples")).InnerText = NumberOfSamplesUpDown.Value.ToString();
+            SaveOutputs(xml, node);
+            SaveInputs(xml, node);
+            node.AppendChild(xml.CreateElement("NumberOfSamples")).InnerText = _numberOfSamplesUpDown.Value.ToString();
         }
 
-        public override void Load(XmlNode xml)
+        public sealed override void Load(XmlNode xml)
         {
+            LoadInputsAndOutputs(xml);
+            AttachPipeToInput(1, SpectrumInput);
+
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
             {
                 switch (node.Name)
@@ -81,14 +104,8 @@ namespace AudioSpectrum.RackItems
                         int numberOfSamples;
                         if (int.TryParse(node.InnerText, out numberOfSamples))
                         {
-                            NumberOfSamplesUpDown.Value = numberOfSamples;
+                            _numberOfSamplesUpDown.Value = numberOfSamples;
                         }
-                        break;
-                    case "Outputs":
-                        LoadOutputs(node);
-                        break;
-                    case "Inputs":
-                        LoadInputs(node);
                         break;
                 }
             }

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using System.Xml;
 using AudioSpectrum.RackItems;
 
@@ -29,10 +30,13 @@ namespace AudioSpectrum
         private readonly UIElement _dummyDragSource = new UIElement();
         private IRackItem _selectedRackItem;
 
+        private StackPanel _mostRecentlyAddedStackPanelForLoading;
+
         public RackArrayControl()
         {
             InitializeComponent();
             PopulateTopRailWithRegisteredRackItems();
+            _rackCableManager.MoreOutputsLoadedDelegate += InputSelectorItemsChanged;
             AllExistingRackArrays.Add(this);
         }
 
@@ -45,6 +49,7 @@ namespace AudioSpectrum
             rackPanel.Drop += StackPanelDrop;
             rackPanel.AllowDrop = true;
             rackPanel.Background = Brushes.White;
+            _mostRecentlyAddedStackPanelForLoading = rackPanel;
             _rackStackPanels.Add(rackPanel);
             RackPanel.Items.Add(rackPanel);
 
@@ -54,10 +59,8 @@ namespace AudioSpectrum
 
         public StackPanel GetRackStackPanel()
         { 
-            if (RackPanel.Items.Count < 1) AddRack();
-            var stackPanel = RackPanel.Items[0] as StackPanel;
-            if (stackPanel == null) throw new InvalidCastException("The rack panel should only contain stack panels");
-            return stackPanel;
+            if (_mostRecentlyAddedStackPanelForLoading == null) AddRack();
+            return _mostRecentlyAddedStackPanelForLoading;
         }
 
 #region StackPanel Drag Drop
@@ -147,6 +150,17 @@ namespace AudioSpectrum
             }
         }
 
+        public void InputSelectorItemsChanged()
+        {
+            foreach (var stackPanel in _rackStackPanels)
+            {
+                foreach (var rackItemContainer in stackPanel.Children.OfType<RackItemContainer>())
+                {
+                    rackItemContainer.InputSelectorItemsChanged();
+                }
+            }
+        }
+
         private void PopulateTopRailWithRegisteredRackItems()
         {
             _rackItemFactoryButtons.Clear();
@@ -159,14 +173,14 @@ namespace AudioSpectrum
                 {
                     Content = new TextBlock
                     {
-                        Text = rackItem.Key,
+                        Text = SplitCamelCase(rackItem.Key),
                         TextWrapping = TextWrapping.Wrap,
                         TextAlignment = TextAlignment.Center
                     },
                     Width = TopRail.Height,
-                    MaxWidth = 48,
-                    MinWidth = 48,
-                    FontSize = 10,
+                    MaxWidth = 75,
+                    MinWidth = 75,
+                    FontSize = 12,
                     Margin = new Thickness(1, 1, 1, 1),
                     HorizontalContentAlignment = HorizontalAlignment.Center,
                     Background = new SolidColorBrush(Color.FromRgb(grayness, grayness, grayness))
@@ -180,10 +194,15 @@ namespace AudioSpectrum
             }
         }
 
-        private IRackItem CreateRackItem(string rackItemName)
+        private static string SplitCamelCase(string input)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(input, "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim();
+        }
+
+        private IRackItem CreateRackItem(string rackItemName, XmlElement xml = null)
         {
             if (!RegisteredRackItems.ContainsKey(rackItemName)) throw new UnregisteredRackItemException();
-            var rackContainer = new RackItemContainer(_rackCableManager, this, RegisteredRackItems[rackItemName](),
+            var rackContainer = new RackItemContainer(_rackCableManager, this, RegisteredRackItems[rackItemName](xml),
                         StackPanelPreviewMouseMove, SelectRackItem);
             return rackContainer.RackItem;
         }
@@ -193,10 +212,34 @@ namespace AudioSpectrum
             SelectedItemNameLabel.Content = title;
 
             SideRail.Children.Clear();
+
+            var propertiesLabel = new TextBlock
+            {
+                Text = "Properties",
+                FontSize = 10,
+                Height = 20,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 2, 0, 0)
+            };
+            SideRail.Children.Add(propertiesLabel);
+            SideRail.Children.Add(GetSideRailSeperator());
+
             foreach (var control in controls)
             {
                 SideRail.Children.Add(control);
             }
+
+            SideRail.Children.Add(GetSideRailSeperator());
+        }
+
+        private static Rectangle GetSideRailSeperator()
+        {
+            var seperator = new Rectangle
+            {
+                Height = 1,
+                Fill = Brushes.Black
+            };
+            return seperator;
         }
 
         private void SelectRackItem(IRackItem selectedRackItem)
@@ -219,17 +262,13 @@ namespace AudioSpectrum
 
         public void Load(XmlNode xml)
         {
-            for (var i = 0; i < xml.ChildNodes.Count; i++)
+            foreach (var node in xml.ChildNodes.OfType<XmlElement>())
             {
-                var node = xml.ChildNodes.Item(i);
-
                 var splitName = node?.Name.Split('-');
-                if (splitName?.Length > 1)
+                if (!(splitName?.Length > 1)) continue;
+                if (splitName[0] == "RackItem")
                 {
-                    if (splitName[0] == "RackItem")
-                    {
-                        CreateRackItem(splitName[1]).Load(node);
-                    }
+                    CreateRackItem(splitName[1], node);
                 }
             }
         }

@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace AudioSpectrum.RackItems
 {
-    public delegate void DisplayClickedEventHandler(int pixelNumber, MouseButtonEventArgs e);
+    public delegate void DisplayClickedEventHandler(int pixelNumber, EventArgs e);
 
     /// <summary>
     /// Interaction logic for LedDisplay.xaml
@@ -14,6 +14,9 @@ namespace AudioSpectrum.RackItems
     public partial class LedDisplay : UserControl
     {
         public event DisplayClickedEventHandler PixelClicked;
+
+        private bool _mouseDown;
+        private Rectangle _lastPixelMouseMovedOver;
 
         public LedDisplay()
         {
@@ -106,6 +109,23 @@ namespace AudioSpectrum.RackItems
             if (!int.TryParse(name.Substring(5), out pixelNumber)) return;
             pixelNumber--;
             PixelClicked?.Invoke(pixelNumber, e);
+            _lastPixelMouseMovedOver = clickedPixel;
+        }
+
+        private void LedDisplay_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                var pixel = Mouse.DirectlyOver as Rectangle;
+                if (pixel != null && pixel.Name.Length > 4 && pixel.Name.Substring(0, 5) == "Pixel" && _lastPixelMouseMovedOver != pixel)
+                {
+                    _lastPixelMouseMovedOver = pixel;
+                    int pixelNumber;
+                    if (!int.TryParse(pixel.Name.Substring(5), out pixelNumber)) return;
+                    pixelNumber--;
+                    PixelClicked?.Invoke(pixelNumber, EventArgs.Empty);
+                }
+            }
         }
     }
 }

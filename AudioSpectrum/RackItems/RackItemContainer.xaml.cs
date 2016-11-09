@@ -13,21 +13,14 @@ namespace AudioSpectrum.RackItems
     [ContentProperty("AdditionalContent")]
     public partial class RackItemContainer : UserControl
     {
-        private static int _rackId;
-        private readonly int _id;
-
         public StackPanel ContainingPanel;
         public IRackItem RackItem { get; }
 
-        private readonly Dictionary<string, ComboBox> _inputSelectors = new Dictionary<string, ComboBox>();
-        private readonly Dictionary<string, TextBox> _outputTextboxs = new Dictionary<string, TextBox>();
-
-        private List<string> OutputNames { get; set; }
-        private Dictionary<string, Pipe> Inputs { get; set; }
         private RackCableManager RackCableManager { get; }
 
         private readonly MouseEventHandler _dragItemEventHandler;
         private readonly RackArrayControl.SelectRackItemDelegate _selectRackItemDelegate;
+        private readonly List<ComboBox> _inputComboBoxs = new List<ComboBox>();
 
         /// <summary>
         /// Gets or sets additional content for the UserControl
@@ -44,13 +37,8 @@ namespace AudioSpectrum.RackItems
         {
             InitializeComponent();
 
-            _id = _rackId++;
-
             var desc = DependencyPropertyDescriptor.FromProperty(AdditionalContentProperty, typeof(UserControl));
             desc.AddValueChanged(this, ContentPropertyChanged);
-
-            OutputNames = new List<string>();
-            Inputs = new Dictionary<string, Pipe>();
 
             RackCableManager = rackCableManager;
             RackCableManager.AddRack(this);
@@ -90,111 +78,86 @@ namespace AudioSpectrum.RackItems
             var rack = sender as RackItemContainer;
             if (sender == null) return;
 
-            var rackPanel = rack?.AdditionalContent as IRackItem;
-            if (rackPanel == null) return;
+            var rackItem = rack?.AdditionalContent as IRackItem;
+            if (rackItem == null) return;
 
             var userControl = rack.AdditionalContent as UserControl;
             if (userControl == null) return;
 
-            ContentRow.Height = new GridLength(userControl.Height);
+            ItemNameLabel.Content = rackItem.ItemName;
+            ContentRow.Height = new GridLength(double.IsNaN(userControl.Height) ? 0.0 : userControl.Height);
 
-            Inputs = rackPanel.GetInputs();
-            OutputNames = rackPanel.GetOutputs();
-
-            _inputSelectors.Clear();
-            foreach (var input in Inputs)
+            foreach (var input in rackItem.GetInputs())
             {
                 var inputSelector = new ComboBox();
                 inputSelector.SelectionChanged += RackCableManager.InputSelectorSelectionChanged;
-                inputSelector.Tag = input.Key + _id.ToString();
-                inputSelector.Margin = new Thickness(1, 1, 5, 1);
+                inputSelector.Tag = input;
+                inputSelector.Margin = new Thickness(1, 0, 5, 1);
                 inputSelector.Width = 100;
                 inputSelector.FontSize = 10;
                 inputSelector.HorizontalContentAlignment = HorizontalAlignment.Center;
                 inputSelector.VerticalContentAlignment = VerticalAlignment.Center;
+                inputSelector.ItemsSource = RackCableManager.AllRackItemOutputs;
+                _inputComboBoxs.Add(inputSelector);
+
                 InputsPanel.Children.Add(inputSelector);
-                _inputSelectors.Add(input.Key, inputSelector);
             }
 
-            _outputTextboxs.Clear();
-            foreach (var outputName in OutputNames)
+            foreach (var output in rackItem.GetOutputs())
             {
                 var outputTextBox = new TextBox
                 {
-                    Text = outputName,
+                    Text = output.VisibleName,
                     FontSize = 10,
                     Width = 100,
                     Margin = new Thickness(1, 1, 5, 1),
                     Background = Brushes.Transparent,
                     HorizontalContentAlignment = HorizontalAlignment.Center,
-                    VerticalContentAlignment = VerticalAlignment.Center
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    Tag = output
                 };
                 outputTextBox.TextChanged += RackCableManager.OutputTextBoxTextChanged;
                 OutputsPanel.Children.Add(outputTextBox);
-                _outputTextboxs.Add(outputName, outputTextBox);
             }
 
-            CloseButton.Visibility = rackPanel.CanDelete() ? Visibility.Visible : Visibility.Hidden;
+            CloseButton.Visibility = rackItem.CanDelete() ? Visibility.Visible : Visibility.Hidden;
 
-            rackPanel.SetRack(this);
-            UpdateInputSelectors();
+            rackItem.SetRack(this);
             RackCableManager.RackContentSet(this);
         }
 
-        public void UpdateInputSelectors(List<string> outputs)
+        public void InputSelectorItemsChanged()
         {
-            foreach (var inputSelector in _inputSelectors)
+            foreach (var inputCb in _inputComboBoxs)
             {
-                var oldValue = inputSelector.Value.SelectedItem as string;
-                inputSelector.Value.Items.Clear();
-                foreach (var outputName in outputs)
-                {
-                    inputSelector.Value.Items.Add(outputName);
-                }
+                var input = (RackItemInput)inputCb.Tag;
+                if (input.ConnectedOutput == null) return;
 
-                if (oldValue != null && outputs.Contains(oldValue)) 
+                int i = 0;
+                foreach (var output in inputCb.Items.OfType<RackItemOutput>())
                 {
-                    inputSelector.Value.SelectedItem = oldValue;
+                    if (output.VisibleName.Equals(input.ConnectedOutput))
+                    {
+                        inputCb.SelectedIndex = i;
+                    }
+                    i++;
                 }
             }
         }
 
-        private void UpdateInputSelectors()
+        public IEnumerable<RackItemInput> GetInputs()
         {
-            var outputNameList = RackCableManager.GetOutputNameList();
-            foreach (var inputSelector in _inputSelectors)
-            {
-                inputSelector.Value.Items.Clear();
-                foreach (var outputName in outputNameList)
-                {
-                    inputSelector.Value.Items.Add(outputName);
-                }
-            }
+            return RackItem.GetInputs();
         }
 
-        public Dictionary<string, Pipe> GetInputs()
+        public List<RackItemOutput> GetOutputs()
         {
-            return Inputs.ToDictionary(kv => kv.Key + _id.ToString(), kv => kv.Value);
+            return RackItem.GetOutputs();
         }
 
-        public IEnumerable<string> GetExternalOutputNames()
+        public void OutputPipe(RackItemOutput output, List<byte> data, int iteration)
         {
-            return _outputTextboxs.Select(textBox => textBox.Value.Text).ToList();
-        }
-
-        public IDictionary<string, string> GetInternalToExternalOutputNames()
-        {
-            return _outputTextboxs.ToDictionary(output => output.Key, output => output.Value.Text);
-        }
-
-        public IDictionary<string, string> GetInputToConnectedOutputNames()
-        {
-            return _inputSelectors.ToDictionary(input => input.Key, input => input.Value.SelectedValue?.ToString());
-        }
-
-        public void OutputPipe(string outputName, List<byte> data, int iteration)
-        {
-            RackCableManager.OutputPipe(_outputTextboxs[outputName].Text, data, iteration);
+            RackCableManager.OutputPipe(output, data, iteration);
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -203,28 +166,6 @@ namespace AudioSpectrum.RackItems
             ContainingPanel.Children.Remove(this);
 
             RackItem?.CleanUp();
-        }
-
-        public void RenameOutputs(IDictionary<string, string> renameMap)
-        {
-            foreach (var rename in renameMap)
-            {
-                if (_outputTextboxs.ContainsKey(rename.Key))
-                {
-                    _outputTextboxs[rename.Key].Text = rename.Value;
-                }
-            }
-        }
-
-        public void SetInputs(IDictionary<string, string> setMap)
-        {
-            foreach (var set in setMap)
-            {
-                //if (_inputSelectors.ContainsKey(set.Key))
-                //{
-                    _inputSelectors[set.Key].SelectedValue = set.Value;
-                //}
-            }
         }
     }
 }

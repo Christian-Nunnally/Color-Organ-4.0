@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="173"/>
+            <ColumnDefinition Width="260"/>
         </Grid.ColumnDefinitions>
         <Border Grid.Row="1" Grid.Column="0">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
@@ -55,7 +55,7 @@
             </StackPanel>
         </Border>
         <Border Grid.Row="1" Grid.Column="1">
-            <StackPanel x:Name="SideRail"></StackPanel>
+            <StackPanel Background="White" x:Name="SideRail"></StackPanel>
         </Border>
     </Grid>
 </UserControl>

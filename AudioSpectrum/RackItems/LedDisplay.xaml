@@ -19,7 +19,7 @@
                 <TranslateTransform/>
             </TransformGroup>
         </Border.RenderTransform>
-        <Grid>
+        <Grid MouseMove="LedDisplay_OnMouseMove">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>

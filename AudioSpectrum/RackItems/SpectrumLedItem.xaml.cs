@@ -8,27 +8,25 @@ namespace AudioSpectrum.RackItems
     public partial class SpectrumLedItem : RackItemBase
     {
 
-        public SpectrumLedItem()
+        public SpectrumLedItem(XmlNode xml)
         {
             InitializeComponent();
             ItemName = "SpectrumLedDisplay";
+
+            if (xml == null)
+            {
+                AddInput(new RackItemInput("Specturm Led Panel", SpectrumIn));
+                AddOutput(new RackItemOutput("Graphics Out"));
+            }
+            else
+            {
+                Load(xml);
+            }
         }
 
-        public override IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem(XmlElement xml)
         {
-            return new SpectrumLedItem();
-        }
-
-        public override Dictionary<string, Pipe> GetInputs()
-        {
-            var inputs = new Dictionary<string, Pipe> {{"Specturm Led Panel", SpectrumIn}};
-            return inputs;
-        }
-
-        public override List<string> GetOutputs()
-        {
-            var outputs = new List<string> {"Graphics Out"};
-            return outputs;
+            return new SpectrumLedItem(xml);
         }
 
         private void SpectrumIn(List<byte> data, int iteration)
@@ -67,7 +65,11 @@ namespace AudioSpectrum.RackItems
             }
 
             LedSimulator.Set(graphicsData);
-            RackContainer.OutputPipe("Graphics Out", graphicsData.ToList(), iteration);
+
+            if (RackItemOutputs.Count > 0)
+            {
+                RackContainer.OutputPipe(RackItemOutputs.First(), graphicsData.ToList(), iteration);
+            }
         }
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
@@ -82,20 +84,10 @@ namespace AudioSpectrum.RackItems
             SaveInputs(xml, node);
         }
 
-        public override void Load(XmlNode xml)
+        public sealed override void Load(XmlNode xml)
         {
-            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
-                switch (node.Name)
-                {
-                    case "Outputs":
-                        LoadOutputs(node);
-                        break;
-                    case "Inputs":
-                        LoadInputs(node);
-                        break;
-                }
-            }
+            LoadInputsAndOutputs(xml);
+            AttachPipeToInput(1, SpectrumIn);
         }
     }
 }

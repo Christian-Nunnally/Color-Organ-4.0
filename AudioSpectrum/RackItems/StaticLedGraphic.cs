@@ -31,6 +31,12 @@ namespace AudioSpectrum.RackItems
             Graphic[pixelNumber + 128] = color.B;
         }
 
+        public bool IsPixelOff(int pixelNumber)
+        {
+            if (pixelNumber < 0 || pixelNumber >= 64) throw new ArgumentException("color");
+            return Graphic[pixelNumber] == 0 && Graphic[pixelNumber + 64] == 0 && Graphic[pixelNumber + 64] == 0;
+        }
+
         public void Save(XmlDocument xml, XmlNode parent)
         {
             var node = parent.AppendChild(xml.CreateElement("StaticGraphic"));

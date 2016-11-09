@@ -1,22 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
     public delegate void Pipe(List<byte> data, int depth);
     public delegate void SetSideRailDelegate(string name, List<Control> controls);
 
-    public delegate IRackItem RackItemFactory();
+    public delegate IRackItem RackItemFactory(XmlElement xml);
 
     public interface IRackItem : ISaveable
     {
         string ItemName { get; set; }
 
-        IRackItem CreateRackItem();
+        IRackItem CreateRackItem(XmlElement xml);
 
-        Dictionary<string, Pipe> GetInputs();
+        List<RackItemInput> GetInputs();
 
-        List<string> GetOutputs();
+        List<RackItemOutput> GetOutputs();
 
         void SetRack(RackItemContainer rack);
 
@@ -25,6 +26,12 @@ namespace AudioSpectrum.RackItems
         bool CanDelete();
 
         void SetSideRail(SetSideRailDelegate sideRailSetter);
+
+        void AddOutput(RackItemOutput output);
+
+        void AddInput(RackItemInput input);
+
+        void RenameOutput(long key, string newName);
 
         /// <summary>
         /// This function gets run on a the RackCableManagers Heartbeat thread.

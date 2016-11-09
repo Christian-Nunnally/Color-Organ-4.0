@@ -7,16 +7,23 @@ namespace AudioSpectrum.RackItems
 {
     public abstract class RackItemBase : UserControl, IRackItem
     {
-        protected List<RackItemInput> RackItemInputs = new List<RackItemInput>();
+        public readonly List<RackItemInput> RackItemInputs = new List<RackItemInput>();
+        public readonly List<RackItemOutput> RackItemOutputs = new List<RackItemOutput>();
+
         protected const string RackItemName = "RackItem";
 
-        public RackItemContainer RackContainer;
+        protected RackItemContainer RackContainer;
 
-        public abstract IRackItem CreateRackItem();
+        public abstract IRackItem CreateRackItem(XmlElement xml);
+        public List<RackItemInput> GetInputs()
+        {
+            return RackItemInputs;
+        }
 
-        public abstract Dictionary<string, Pipe> GetInputs();
-
-        public abstract List<string> GetOutputs();
+        public List<RackItemOutput> GetOutputs()
+        {
+            return RackItemOutputs;
+        }
 
         public void SetRack(RackItemContainer rack)
         {
@@ -39,6 +46,28 @@ namespace AudioSpectrum.RackItems
 
         public virtual void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
+            sideRailSetter.Invoke(ItemName, new List<Control>());
+        }
+
+        public void AddOutput(RackItemOutput output)
+        {
+            RackItemOutputs.Add(output);
+            output.OutputNumber = RackItemOutputs.Count;
+        }
+
+        public void AddInput(RackItemInput input)
+        {
+            RackItemInputs.Add(input);
+            input.InputNumber = RackItemInputs.Count;
+        }
+
+        public void RenameOutput(long key, string newName)
+        {
+            var rackItemOutput = RackItemOutputs.FirstOrDefault(x => x.Key == key);
+            if (rackItemOutput != null)
+            {
+                rackItemOutput.VisibleName = newName;
+            }
         }
 
         public virtual void HeartBeat()
@@ -47,68 +76,43 @@ namespace AudioSpectrum.RackItems
 
         protected void SaveInputs(XmlDocument xml, XmlNode node)
         {
-            if (RackContainer == null) return;
-            var outputsNode = node.AppendChild(xml.CreateElement("Inputs"));
-
-            foreach (var mapItem in RackContainer.GetInputToConnectedOutputNames())
+            foreach (var rackItemInput in RackItemInputs)
             {
-                var outputNode = outputsNode.AppendChild(xml.CreateElement("Input"));
-                outputNode.AppendChild(xml.CreateElement("InputName")).InnerText = mapItem.Key;
-                outputNode.AppendChild(xml.CreateElement("ConnectedOutputName")).InnerText = mapItem.Value;
+                rackItemInput.Save(xml, node);
             }
         }
 
         protected void SaveOutputs(XmlDocument xml, XmlNode node)
         {
-            if (RackContainer == null) return;
-            var outputsNode = node.AppendChild(xml.CreateElement("Outputs"));
-            
-            foreach (var mapItem in RackContainer.GetInternalToExternalOutputNames())
+            foreach (var rackItemOutput in RackItemOutputs)
             {
-                var outputNode = outputsNode.AppendChild(xml.CreateElement("Output"));
-                outputNode.AppendChild(xml.CreateElement("InternalName")).InnerText = mapItem.Key;
-                outputNode.AppendChild(xml.CreateElement("ExternalName")).InnerText = mapItem.Value;
+                rackItemOutput.Save(xml, node);
             }
         }
 
-        protected void LoadInputs(XmlNode node)
+        protected void AttachPipeToInput(int inputNumber, Pipe pipe)
         {
-            if (RackContainer == null) return;
-            var inputConnectionMap = new Dictionary<string, string>();
-            if (node.Name != "Inputs") throw new ProjectLoadException();
-            foreach (var nodeChildNode in node.ChildNodes.OfType<XmlNode>())
+            var input = RackItemInputs.FirstOrDefault(x => x.InputNumber == inputNumber);
+            if (input != null)
             {
-                if (nodeChildNode.Name != "Input") throw new ProjectLoadException();
-                var inputName = "";
-                var connectedOutputName = "";
-                foreach (var nameNode in nodeChildNode.ChildNodes.OfType<XmlNode>())
-                {
-                    if (nameNode.Name == "InputName") inputName = nameNode.InnerText;
-                    if (nameNode.Name == "ConnectedOutputName") connectedOutputName = nameNode.InnerText;
-                }
-                if (inputName != string.Empty && connectedOutputName != string.Empty) inputConnectionMap.Add(inputName, connectedOutputName);
+                input.Pipe = pipe;
             }
-            RackContainer.SetInputs(inputConnectionMap);
         }
 
-        protected void LoadOutputs(XmlNode node)
+        protected void LoadInputsAndOutputs(XmlNode xml)
         {
-            if (RackContainer == null) return;
-            var outputRenameMap = new Dictionary<string, string>();
-            if (node.Name != "Outputs") throw new ProjectLoadException();
-            foreach (var nodeChildNode in node.ChildNodes.OfType<XmlNode>())
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
             {
-                if (nodeChildNode.Name != "Output") throw new ProjectLoadException();
-                var internalName = "";
-                var externalName = "";
-                foreach (var nameNode in nodeChildNode.ChildNodes.OfType<XmlNode>())
+                switch (node.Name)
                 {
-                    if (nameNode.Name == "InternalName") internalName = nameNode.InnerText;
-                    if (nameNode.Name == "ExternalName") externalName = nameNode.InnerText;
+                    case "Input":
+                        AddInput(new RackItemInput(node));
+                        break;
+                    case "Output":
+                        AddOutput(new RackItemOutput(node));
+                        break;
                 }
-                if (internalName != string.Empty && externalName != string.Empty) outputRenameMap.Add(internalName, externalName);
             }
-            RackContainer.RenameOutputs(outputRenameMap);
         }
     }
 }

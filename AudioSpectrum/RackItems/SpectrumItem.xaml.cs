@@ -12,7 +12,7 @@ namespace AudioSpectrum.RackItems
 
         private IEnumerable<ProgressBar> Bars => SpectrumStackPanel.Children.OfType<ProgressBar>();
 
-        public SpectrumItem()
+        public SpectrumItem(XmlNode xml)
         {
             _barStyle = new Style(typeof(ProgressBar));
             _barStyle.Setters.Add(new Setter(ProgressBar.OrientationProperty, Orientation.Vertical));
@@ -20,23 +20,21 @@ namespace AudioSpectrum.RackItems
             _barStyle.Setters.Add(new Setter(MarginProperty, new Thickness(2, 0, 2, 0)));
             InitializeComponent();
             ItemName = "Spectrum";
+
+            if (xml == null)
+            {
+                AddInput(new RackItemInput("Spectrum In", SpectrumIn));
+                AddOutput(new RackItemOutput("Spectrum Out"));
+            }
+            else
+            {
+                Load(xml);
+            }
         }
 
-        public override IRackItem CreateRackItem()
+        public override IRackItem CreateRackItem(XmlElement xml)
         {
-            return new SpectrumItem();
-        }
-
-        public override Dictionary<string, Pipe> GetInputs()
-        {
-            var inputs = new Dictionary<string, Pipe> {{"Spectrum In", SpectrumIn}};
-            return inputs;
-        }
-
-        public override List<string> GetOutputs()
-        {
-            var outputs = new List<string> {"Spectrum Out"};
-            return outputs;
+            return new SpectrumItem(xml);
         }
 
         private void SpectrumIn(List<byte> data, int iteration)
@@ -69,7 +67,10 @@ namespace AudioSpectrum.RackItems
                 newData.Add(data[i]);
             }
 
-            RackContainer.OutputPipe("Spectrum Out", newData, iteration);
+            if (RackItemOutputs.Count > 0)
+            {
+                RackContainer.OutputPipe(RackItemOutputs.First(), newData, iteration);
+            }
         }
 
         public override void Save(XmlDocument xml, XmlNode parent)
@@ -79,20 +80,10 @@ namespace AudioSpectrum.RackItems
             SaveInputs(xml, node);
         }
 
-        public override void Load(XmlNode xml)
+        public sealed override void Load(XmlNode xml)
         {
-            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
-                switch (node.Name)
-                {
-                    case "Outputs":
-                        LoadOutputs(node);
-                        break;
-                    case "Inputs":
-                        LoadInputs(node);
-                        break;
-                }
-            }
+            LoadInputsAndOutputs(xml);
+            AttachPipeToInput(1, SpectrumIn);
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Xml;
 
 namespace AudioSpectrum.RackItems
@@ -15,26 +14,25 @@ namespace AudioSpectrum.RackItems
 
         private readonly List<byte> _binaryData = new List<byte>();
 
-        public SpectrumToBinaryDataItem()
+        public SpectrumToBinaryDataItem(XmlNode xml)
         {
             InitializeComponent();
             ItemName = "SpectrumToBinary";
+
+            if (xml == null)
+            {
+                AddInput(new RackItemInput("Spectrum Input", SpectrumInput));
+                AddOutput(new RackItemOutput("Binary Data Out"));
+            }
+            else
+            {
+                Load(xml);
+            }
         }
 
-        public override void SetSideRail(SetSideRailDelegate sideRailSetter)
+        public override IRackItem CreateRackItem(XmlElement xml)
         {
-            sideRailSetter?.Invoke(ItemName, new List<Control>());
-        }
-
-        public override IRackItem CreateRackItem()
-        {
-            return new SpectrumToBinaryDataItem();
-        }
-
-        public override Dictionary<string, Pipe> GetInputs()
-        {
-            var inputs = new Dictionary<string, Pipe> {{"Spectrum Input", SpectrumInput}};
-            return inputs;
+            return new SpectrumToBinaryDataItem(xml);
         }
 
         private void SpectrumInput(List<byte> data, int iteration)
@@ -80,13 +78,10 @@ namespace AudioSpectrum.RackItems
                 }
             }
 
-            RackContainer.OutputPipe("Binary Data Out", _binaryData, iteration);
-        }
-
-        public override List<string> GetOutputs()
-        {
-            var outputs = new List<string> {"Binary Data Out"};
-            return outputs;
+            if (RackItemOutputs.Count > 0)
+            {
+                RackContainer.OutputPipe(RackItemOutputs.First(), _binaryData, iteration);
+            }
         }
 
         private void NormalizeCheckbox_Checked(object sender, RoutedEventArgs e)
@@ -122,8 +117,11 @@ namespace AudioSpectrum.RackItems
             SaveInputs(xml, node);
         }
 
-        public override void Load(XmlNode xml)
+        public sealed override void Load(XmlNode xml)
         {
+            LoadInputsAndOutputs(xml);
+            AttachPipeToInput(1, SpectrumInput);
+
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
             {
                 switch (node.Name)
@@ -136,12 +134,6 @@ namespace AudioSpectrum.RackItems
                         break;
                     case "Normalize":
                         NormalizeCheckbox.IsChecked = bool.Parse(node.InnerText);
-                        break;
-                    case "Outputs":
-                        LoadOutputs(node);
-                        break;
-                    case "Inputs":
-                        LoadInputs(node);
                         break;
                 }
             }

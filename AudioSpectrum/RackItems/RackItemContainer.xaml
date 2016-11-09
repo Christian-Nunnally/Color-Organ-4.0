@@ -22,8 +22,16 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="BackgroundGridBorderMouseOver" TargetType="Grid">
+            <Setter Property="Background" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="Grid.IsMouseOver" Value="True">
+                    <Setter Property="Grid.Background" Value="WhiteSmoke" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
-    <Grid x:Name="BackgroundGrid" Background="White" Margin="0">
+    <Grid x:Name="BackgroundGrid" Margin="0" Style="{StaticResource BackgroundGridBorderMouseOver}">
         <Grid.Resources>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="BorderBrush" Value="#f555" />
@@ -42,10 +50,13 @@
             <Grid x:Name="InputsGrid" Style="{StaticResource GridBorderMouseOver}" HorizontalAlignment="Left" Height="24" Margin="1" VerticalAlignment="Top" Width="400">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="20"/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="247*"/>
+                    <ColumnDefinition Width="102*"/>
+                    <ColumnDefinition Width="31*"/>
                 </Grid.ColumnDefinitions>
                 <Label FontSize="16" FontFamily="trebuchet ms" Foreground="Black" Content="I" HorizontalContentAlignment="Center" Margin="-1,-4,1,-1"/>
                 <StackPanel x:Name="InputsPanel" Style="{StaticResource StackPanelBorderMouseOver}" Orientation="Horizontal" Grid.Column="1" Margin="0,-1,0,1" />
+                <Label x:Name="ItemNameLabel" HorizontalContentAlignment="Right" FontSize="8" Content="Label" Grid.Column="2" Margin="0,-1,0,0" VerticalAlignment="Top"/>
             </Grid>
         </Border>
         <Border Background="#fccc" BorderThickness="1" Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">

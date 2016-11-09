@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Xml;
 
 namespace AudioSpectrum
 {
     public class Project
     {
-        public string ProjectName { get; }
-        public string ProjectPath{ get; }
+        public string ProjectName { get; private set; }
+        public string ProjectPath{ get; private set; }
+
+        private readonly Window _window;
 
         public readonly ObservableCollection<RackSetup> RackSetups = new ObservableCollection<RackSetup>();
 
@@ -27,11 +30,20 @@ namespace AudioSpectrum
 
         public RackArrayControl RackArrayControl => SelectedRackSetup?.RackArrayControl;
 
-        public Project(string projectPath)
+        public Project(string projectPath, Window window)
         {
-            ProjectPath = projectPath;
-            var sp = projectPath.Split('\\');
-            ProjectName = sp.Length > 0 ? sp[sp.Length - 1].Split('.')[0] : "Invalid Project Name".Split('.')[0];
+            _window = window;
+
+            if (projectPath != "Project")
+            {
+                ProjectPath = projectPath;
+                var sp = projectPath.Split('\\');
+                ProjectName = sp.Length > 0 ? sp[sp.Length - 1].Split('.')[0] : "Invalid Project Name".Split('.')[0];
+            }
+            else
+            {
+                ProjectName = projectPath;
+            }
 
             RackSetups.Add(new RackSetup("Default Setup"));
         }
@@ -102,6 +114,17 @@ namespace AudioSpectrum
 
         public XmlDocument SaveProject()
         {
+            if (ProjectName == "Project")
+            {
+                string fileName;
+                if (ProjectManager.GetFileNameDialog(out fileName, _window))
+                {
+                    ProjectPath = fileName;
+                    var sp = fileName.Split('\\');
+                    ProjectName = sp.Length > 0 ? sp[sp.Length - 1].Split('.')[0] : "Invalid Project Name".Split('.')[0];
+                }
+            }
+
             var xml = new XmlDocument();
             xml.AppendChild(xml.CreateElement("Project"));
             if (xml.DocumentElement == null) throw new ProjectLoadException();

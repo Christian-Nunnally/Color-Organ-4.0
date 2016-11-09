@@ -17,27 +17,37 @@ namespace AudioSpectrum
 
             _projectManager = new ProjectManager(this);
             _projectManager.CurrentProjectChanged += ProjectChangedEventHandler;
+            _projectManager?.OpenUntitledProject();
             WindowState = WindowState.Maximized;
-            SetupRow.Height = new GridLength(0);
 
             Closing += OnClosing;
         }
 
         private void OnClosing(object sender, CancelEventArgs cancelEventArgs)
         {
-            _projectManager.SaveCurrentProject();
+            var result = MessageBox.Show(this, "Do you want to save before closing?", "Save",
+                MessageBoxButton.YesNoCancel);
+            switch (result)
+            {
+                case MessageBoxResult.Cancel:
+                    cancelEventArgs.Cancel = true;
+                    return;
+                case MessageBoxResult.Yes:
+                    _projectManager.SaveCurrentProject();
+                    break;
+            }
         }
 
         private static void RegisterRackItems()
         {
-            RackArrayControl.RegisterRackItem(new AudioSourceItem().ItemName, new AudioSourceItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem(new SpectrumItem().ItemName, new SpectrumItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem(new SpectrumLedItem().ItemName, new SpectrumLedItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem(new SerialInterfaceItem().ItemName, new SerialInterfaceItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem(new FilterSpectrumItem().ItemName, new FilterSpectrumItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem(new GraphicEditorItem().ItemName, new GraphicEditorItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem(new SpectrumToBinaryDataItem().ItemName, new SpectrumToBinaryDataItem().CreateRackItem);
-            RackArrayControl.RegisterRackItem(new AudioProcessorItem().ItemName, new AudioProcessorItem().CreateRackItem);
+            RackArrayControl.RegisterRackItem(new AudioSourceItem(null).ItemName, new AudioSourceItem(null).CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SpectrumItem(null).ItemName, new SpectrumItem(null).CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SpectrumLedItem(null).ItemName, new SpectrumLedItem(null).CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SerialInterfaceItem(null).ItemName, new SerialInterfaceItem(null).CreateRackItem);
+            RackArrayControl.RegisterRackItem(new FilterSpectrumItem(null).ItemName, new FilterSpectrumItem(null).CreateRackItem);
+            RackArrayControl.RegisterRackItem(new StaticGraphicEditorItem(null).ItemName, new StaticGraphicEditorItem(null).CreateRackItem);
+            RackArrayControl.RegisterRackItem(new SpectrumToBinaryDataItem(null).ItemName, new SpectrumToBinaryDataItem(null).CreateRackItem);
+            RackArrayControl.RegisterRackItem(new AudioProcessorItem(null).ItemName, new AudioProcessorItem(null).CreateRackItem);
         }
 
         private void NewProject()
@@ -57,15 +67,7 @@ namespace AudioSpectrum
             RackSetupListBox.ItemsSource = _projectManager.CurrentProject.RackSetups;
             RackSetupListBox.DisplayMemberPath = "Name";
 
-            if (_projectManager.CurrentProject != null)
-            {
-                SetupRow.Height = new GridLength(33);
-            }
-            else
-            {
-                SetupRow.Height = new GridLength(0);
-
-            }
+            SetupRow.Height = _projectManager.CurrentProject != null ? new GridLength(33) : new GridLength(0);
         }
 
         private void RackSetupListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

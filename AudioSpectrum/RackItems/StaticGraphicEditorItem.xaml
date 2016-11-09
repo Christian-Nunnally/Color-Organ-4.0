@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:rackItems="clr-namespace:AudioSpectrum.RackItems"
-    x:Class="AudioSpectrum.RackItems.GraphicEditorItem"
+    x:Class="AudioSpectrum.RackItems.StaticGraphicEditorItem"
              mc:Ignorable="d" 
              Height="202.406" d:DesignWidth="350">
     <Grid Background="White">
@@ -18,9 +18,9 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="152"/>
             </Grid.ColumnDefinitions>
-            <rackItems:LedDisplay x:Name="LedSimulator" Grid.Column="1" Grid.Row="1" Margin="0,0,0,1"/>
+            <rackItems:LedDisplay x:Name="LedSimulator" Margin="0,0,0,1" Grid.Column="1" Grid.Row="1"/>
             <ListBox x:Name="ChannelsListBox" DisplayMemberPath="Name" Height="152" VerticalAlignment="Top" Grid.Row="1" Margin="0,0,10,0" SelectionChanged="ChannelsListBox_OnSelectionChanged"/>
-            <xctk:ColorPicker x:Name="ColorPicker" Margin="93,2,2,2" Grid.Column="1"/>
+            <xctk:ColorPicker x:Name="ColorPicker" Margin="95,2,0,2" Grid.Column="1"/>
             <Label x:Name="ColorLabel" Content="Color:" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="28" Width="39" Margin="54,0,0,0"/>
             <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,152,0,0"/>
             <TextBox x:Name="ChannelNameTextBox" Margin="0,2,75,2" TextWrapping="Wrap" Text="Graphic 1"/>

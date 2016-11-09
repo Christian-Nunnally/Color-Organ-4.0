@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Xml;
 using Microsoft.Win32;
@@ -46,13 +47,13 @@ namespace AudioSpectrum
             }
 
             string fileName;
-            if (GetFileNameDialog(out fileName))
+            if (GetFileNameDialog(out fileName, _window))
             {
-                CurrentProject = new Project(fileName);
+                CurrentProject = new Project(fileName, _window);
             }
         }
 
-        private bool GetFileNameDialog(out string fileName)
+        public static bool GetFileNameDialog(out string fileName, Window window)
         {
             fileName = "";
             var ofd = new OpenFileDialog
@@ -64,13 +65,11 @@ namespace AudioSpectrum
                 CheckFileExists = false,
             };
 
-            ofd.ShowDialog(_window);
-
-
+            ofd.ShowDialog(window);
 
             if (ofd.FileName == string.Empty)
             {
-                MessageBox.Show(_window, "File path can not be empty.");
+                MessageBox.Show(window, "File path can not be empty.");
                 return false;
             }
 
@@ -89,14 +88,31 @@ namespace AudioSpectrum
         public void LoadProject()
         {
             string fileName;
-            if (!GetFileNameDialog(out fileName)) return;
+            if (!GetFileNameDialog(out fileName, _window)) return;
             if (!fileName.EndsWith(".cos"))
             {
-                MessageBox.Show(_window, "Must be a .cos file");
+                MessageBox.Show(_window, $"{fileName} must end in '.cos'");
+                return;
             }
             var doc = new XmlDocument();
+            if (!File.Exists(fileName))
+            {
+                MessageBox.Show(_window, $"{fileName} does not exist");
+                return;
+            }
             doc.Load(fileName);
             CurrentProject = new Project(doc);
+        }
+
+        public void OpenUntitledProject()
+        {
+            if (CurrentProject != null)
+            {
+                MessageBox.Show(_window, "Can not create untitled project with a project currently open");
+                return;
+            }
+
+            CurrentProject = new Project("Project", _window);
         }
     }
 }
