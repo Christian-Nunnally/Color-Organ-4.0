@@ -13,25 +13,13 @@ namespace AudioSpectrum.RackItems
     [ContentProperty("AdditionalContent")]
     public partial class RackItemContainer : UserControl
     {
-        public StackPanel ContainingPanel;
-        public IRackItem RackItem { get; }
-
-        private RackCableManager RackCableManager { get; }
-
-        private readonly MouseEventHandler _dragItemEventHandler;
-        private readonly RackArrayControl.SelectRackItemDelegate _selectRackItemDelegate;
-        private readonly List<ComboBox> _inputComboBoxs = new List<ComboBox>();
-
-        /// <summary>
-        /// Gets or sets additional content for the UserControl
-        /// </summary>
-        public object AdditionalContent
-        {
-            get { return GetValue(AdditionalContentProperty); }
-            set { SetValue(AdditionalContentProperty, value); }
-        }
 
         public static readonly DependencyProperty AdditionalContentProperty = DependencyProperty.Register("AdditionalContent", typeof(object), typeof(RackItemContainer), new PropertyMetadata(null));
+
+        private readonly MouseEventHandler _dragItemEventHandler;
+        private readonly List<ComboBox> _inputComboBoxs = new List<ComboBox>();
+        private readonly RackArrayControl.SelectRackItemDelegate _selectRackItemDelegate;
+        public StackPanel ContainingPanel;
 
         public RackItemContainer(RackCableManager rackCableManager, RackArrayControl rackArray, IRackItem rackItem, MouseEventHandler mouseMovePreviewEventHandler, RackArrayControl.SelectRackItemDelegate mouseClickEventHandler)
         {
@@ -58,6 +46,19 @@ namespace AudioSpectrum.RackItems
             BackgroundGrid.MouseDown += BackgroundGridOnMouseDown;
         }
 
+        public IRackItem RackItem { get; }
+
+        private RackCableManager RackCableManager { get; }
+
+        /// <summary>
+        ///     Gets or sets additional content for the UserControl
+        /// </summary>
+        public object AdditionalContent
+        {
+            get { return GetValue(AdditionalContentProperty); }
+            set { SetValue(AdditionalContentProperty, value); }
+        }
+
         private void BackgroundGridOnMouseDown(object sender, MouseButtonEventArgs mouseButtonEventArgs)
         {
             _selectRackItemDelegate.Invoke(RackItem);
@@ -68,7 +69,7 @@ namespace AudioSpectrum.RackItems
             var alteredMouseArgs = new MouseEventArgs(e.MouseDevice, e.Timestamp)
             {
                 RoutedEvent = PreviewMouseMoveEvent,
-                Source = this,
+                Source = this
             };
             _dragItemEventHandler.Invoke(ContainingPanel, alteredMouseArgs);
         }
@@ -133,13 +134,11 @@ namespace AudioSpectrum.RackItems
                 var input = (RackItemInput)inputCb.Tag;
                 if (input.ConnectedOutput == null) return;
 
-                int i = 0;
+                var i = 0;
                 foreach (var output in inputCb.Items.OfType<RackItemOutput>())
                 {
                     if (output.VisibleName.Equals(input.ConnectedOutput))
-                    {
                         inputCb.SelectedIndex = i;
-                    }
                     i++;
                 }
             }
@@ -150,14 +149,14 @@ namespace AudioSpectrum.RackItems
             return RackItem.GetInputs();
         }
 
-        public List<RackItemOutput> GetOutputs()
+        public IEnumerable<RackItemOutput> GetOutputs()
         {
             return RackItem.GetOutputs();
         }
 
-        public void OutputPipe(RackItemOutput output, List<byte> data, int iteration)
+        public void OutputPipe(RackItemOutput output, List<byte> data)
         {
-            RackCableManager.OutputPipe(output, data, iteration);
+            RackCableManager.OutputPipe(output, data);
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

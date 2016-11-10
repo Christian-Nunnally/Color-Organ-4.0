@@ -9,27 +9,24 @@ namespace AudioSpectrum
 {
     public class ProjectManager
     {
-        public EventHandler CurrentProjectChanged;
+        private readonly Window _window;
 
         private Project _project;
+        public EventHandler CurrentProjectChanged;
+
+        public ProjectManager(Window window)
+        {
+            _window = window;
+        }
 
         public Project CurrentProject
         {
-            get
-            {
-                return _project;
-            }
+            get { return _project; }
             private set
             {
                 _project = value;
                 CurrentProjectChanged.Invoke(null, EventArgs.Empty);
             }
-        }
-        private readonly Window _window;
-
-        public ProjectManager(Window window)
-        {
-            _window = window;
         }
 
         public void OpenNewProject()
@@ -39,18 +36,14 @@ namespace AudioSpectrum
                 var result = MessageBox.Show(_window, "Do you want to save your current project before creating a new one?",
                     "Save current project", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
-                {
                     SaveCurrentProject();
-                }
 
-                CurrentProject.Close();
+                Project.Close();
             }
 
             string fileName;
             if (GetFileNameDialog(out fileName, _window))
-            {
                 CurrentProject = new Project(fileName, _window);
-            }
         }
 
         public static bool GetFileNameDialog(out string fileName, Window window)
@@ -62,7 +55,7 @@ namespace AudioSpectrum
                 FileName = "project.cos",
                 AddExtension = true,
                 DefaultExt = "cos",
-                CheckFileExists = false,
+                CheckFileExists = false
             };
 
             ofd.ShowDialog(window);

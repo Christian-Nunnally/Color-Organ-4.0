@@ -7,8 +7,6 @@ namespace AudioSpectrum
     [Serializable]
     public class RackSetup : ISaveable
     {
-        public RackArrayControl RackArrayControl { get; set; }
-        public string Name { get; set; }
 
         public RackSetup(string name)
         {
@@ -16,11 +14,14 @@ namespace AudioSpectrum
             Name = name;
         }
 
-        public RackSetup(XmlElement xml)
+        public RackSetup(XmlNode xml) // TODO: Enable loading through the constructor
         {
             RackArrayControl = new RackArrayControl();
             Load(xml);
         }
+
+        public RackArrayControl RackArrayControl { get; }
+        public string Name { get; private set; }
 
         public void Save(XmlDocument xml, XmlNode parent)
         {
@@ -32,9 +33,7 @@ namespace AudioSpectrum
         public void Load(XmlNode xml)
         {
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
-                if (node.Name == "Name") Name = node.InnerText;
-            }
+                if (node.Name == "SetupName") Name = node.InnerText;
         }
     }
 }

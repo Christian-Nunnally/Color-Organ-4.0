@@ -1,5 +1,4 @@
-﻿using System.Windows.Navigation;
-using System.Xml;
+﻿using System.Xml;
 
 namespace AudioSpectrum
 {

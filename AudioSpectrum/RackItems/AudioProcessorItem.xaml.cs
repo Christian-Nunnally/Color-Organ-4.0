@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 using AudioSpectrum.SideRailContainers;
@@ -12,9 +13,11 @@ namespace AudioSpectrum.RackItems
     public partial class AudioProcessorItem : RackItemBase
     {
         private readonly List<List<byte>> _history = new List<List<byte>>();
-        private int _current;
 
         private readonly IntegerUpDown _numberOfSamplesUpDown = new IntegerUpDown();
+        private int _current;
+
+        private List<UIElement> _sideRailControls;
 
         public AudioProcessorItem(XmlNode xml)
         {
@@ -36,19 +39,14 @@ namespace AudioSpectrum.RackItems
             }
         }
 
-        private List<Control> _sideRailControls;
-
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
             if (_sideRailControls == null)
-            {
-                _sideRailControls = new List<Control>
+                _sideRailControls = new List<UIElement>
                 {
                     new LabeledControlSideRailContainer("Number of samples to average", _numberOfSamplesUpDown,
                         Orientation.Horizontal, 80)
                 };
-
-            }
             sideRailSetter.Invoke(ItemName, _sideRailControls);
         }
 
@@ -57,7 +55,7 @@ namespace AudioSpectrum.RackItems
             return new AudioProcessorItem(xml);
         }
 
-        private void SpectrumInput(List<byte> data, int iteration)
+        private void SpectrumInput(List<byte> data)
         {
             if (_numberOfSamplesUpDown.Value == null) return;
             var samples = _numberOfSamplesUpDown.Value.Value;
@@ -69,18 +67,12 @@ namespace AudioSpectrum.RackItems
             var processedDataInt = new List<int>();
             for (var i = 0; i < data.Count; i++) processedDataInt.Add(0);
             foreach (var t in _history)
-            {
                 for (var j = 0; j < t.Count; j++)
-                {
                     processedDataInt[j] += t[j];
-                }
-            }
 
-            var processedData = processedDataInt.Select(t => (byte) (t/samples)).ToList();
+            var processedData = processedDataInt.Select(t => (byte)(t / samples)).ToList();
             if (RackItemOutputs.Count > 0)
-            {
-                RackContainer.OutputPipe(RackItemOutputs.First(), processedData, iteration);
-            }
+                RackContainer.OutputPipe(RackItemOutputs.First(), processedData);
         }
 
         public override void Save(XmlDocument xml, XmlNode parent)
@@ -97,18 +89,14 @@ namespace AudioSpectrum.RackItems
             AttachPipeToInput(1, SpectrumInput);
 
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
                 switch (node.Name)
                 {
                     case "NumberOfSamples":
                         int numberOfSamples;
                         if (int.TryParse(node.InnerText, out numberOfSamples))
-                        {
                             _numberOfSamplesUpDown.Value = numberOfSamples;
-                        }
                         break;
                 }
-            }
         }
     }
 }

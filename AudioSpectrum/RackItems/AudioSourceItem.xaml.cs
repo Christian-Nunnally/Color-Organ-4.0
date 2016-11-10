@@ -14,16 +14,14 @@ namespace AudioSpectrum.RackItems
         private readonly ComboBox _deviceSelectionBox = new ComboBox();
         private readonly IntegerUpDown _numberOfLinesUpDown = new IntegerUpDown();
 
-        private static Analyzer Analyzer { get; set; }
-
         private bool _enabled;
+
+        private List<UIElement> _sideRailControls;
 
         public AudioSourceItem(XmlNode xml)
         {
             if (Analyzer == null)
-            {
                 Analyzer = new Analyzer();
-            }
 
             InitializeComponent();
             ItemName = "AudioSource";
@@ -35,41 +33,35 @@ namespace AudioSpectrum.RackItems
             _numberOfLinesUpDown.ValueChanged += LinesUpDownValueChanged;
 
             if (xml == null)
-            {
                 AddOutput(new RackItemOutput("Audio Source"));
-            }
             else
-            {
                 Load(xml);
-            }
 
             Analyzer.AnalyerDataReady += SendAudioData;
             Analyzer.InitDeviceComboBox(_deviceSelectionBox);
         }
 
-        private List<Control> _sideRailControls;
+        private static Analyzer Analyzer { get; set; }
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
             if (_sideRailControls == null)
-            {
-                _sideRailControls = new List<Control>
+                _sideRailControls = new List<UIElement>
                 {
                     new LabeledControlSideRailContainer("Device", _deviceSelectionBox, Orientation.Horizontal, 180),
                     new LabeledControlSideRailContainer("Number of lines", _numberOfLinesUpDown, Orientation.Horizontal,
                         70)
                 };
-            }
 
             sideRailSetter.Invoke(ItemName, _sideRailControls);
         }
 
         private void EnableButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((string) EnableButton.Content == "Disable Source")
+            if ((string)EnableButton.Content == "Disable Source")
             {
                 EnableButton.Content = "Enable Source";
-                Analyzer.Disable(EnableButton, _deviceSelectionBox);
+                Analyzer.Disable(_deviceSelectionBox);
                 EnabledIndicator.Fill = new SolidColorBrush(Color.FromRgb(255, 85, 85));
                 _enabled = false;
             }
@@ -86,9 +78,7 @@ namespace AudioSpectrum.RackItems
         {
             if (!_enabled) return;
             if (RackItemOutputs.Count > 0)
-            {
-                RackContainer?.OutputPipe(RackItemOutputs.First(), data, 0);
-            }
+                RackContainer?.OutputPipe(RackItemOutputs.First(), data);
         }
 
         public override IRackItem CreateRackItem(XmlElement xml)
@@ -98,7 +88,7 @@ namespace AudioSpectrum.RackItems
 
         private void LinesUpDownValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (_numberOfLinesUpDown.Value != null && Analyzer != null) Analyzer.Lines = _numberOfLinesUpDown.Value.Value;
+            if ((_numberOfLinesUpDown.Value != null) && (Analyzer != null)) Analyzer.Lines = _numberOfLinesUpDown.Value.Value;
         }
 
         public override void Save(XmlDocument xml, XmlNode parent)
@@ -112,7 +102,5 @@ namespace AudioSpectrum.RackItems
         {
             LoadInputsAndOutputs(xml);
         }
-
-
     }
 }

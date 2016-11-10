@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
 
@@ -7,20 +8,21 @@ namespace AudioSpectrum.RackItems
 {
     public abstract class RackItemBase : UserControl, IRackItem
     {
-        public readonly List<RackItemInput> RackItemInputs = new List<RackItemInput>();
-        public readonly List<RackItemOutput> RackItemOutputs = new List<RackItemOutput>();
 
         protected const string RackItemName = "RackItem";
+        private readonly List<RackItemInput> _rackItemInputs = new List<RackItemInput>();
+        protected readonly List<RackItemOutput> RackItemOutputs = new List<RackItemOutput>();
 
         protected RackItemContainer RackContainer;
 
         public abstract IRackItem CreateRackItem(XmlElement xml);
-        public List<RackItemInput> GetInputs()
+
+        public IEnumerable<RackItemInput> GetInputs()
         {
-            return RackItemInputs;
+            return _rackItemInputs;
         }
 
-        public List<RackItemOutput> GetOutputs()
+        public IEnumerable<RackItemOutput> GetOutputs()
         {
             return RackItemOutputs;
         }
@@ -29,11 +31,14 @@ namespace AudioSpectrum.RackItems
         {
             RackContainer = rack;
         }
+
         public abstract void Save(XmlDocument xml, XmlNode parent);
 
         public abstract void Load(XmlNode xml);
 
-        public string ItemName { get; set; }
+        public string ItemName { get; protected set; }
+
+        public List<UIElement> SideRailItems { get; set; }
 
         public virtual void CleanUp()
         {
@@ -46,7 +51,7 @@ namespace AudioSpectrum.RackItems
 
         public virtual void SetSideRail(SetSideRailDelegate sideRailSetter)
         {
-            sideRailSetter.Invoke(ItemName, new List<Control>());
+            sideRailSetter.Invoke(ItemName, new List<UIElement>());
         }
 
         public void AddOutput(RackItemOutput output)
@@ -57,52 +62,39 @@ namespace AudioSpectrum.RackItems
 
         public void AddInput(RackItemInput input)
         {
-            RackItemInputs.Add(input);
-            input.InputNumber = RackItemInputs.Count;
+            _rackItemInputs.Add(input);
+            input.InputNumber = _rackItemInputs.Count;
         }
 
         public void RenameOutput(long key, string newName)
         {
             var rackItemOutput = RackItemOutputs.FirstOrDefault(x => x.Key == key);
             if (rackItemOutput != null)
-            {
                 rackItemOutput.VisibleName = newName;
-            }
-        }
-
-        public virtual void HeartBeat()
-        {
         }
 
         protected void SaveInputs(XmlDocument xml, XmlNode node)
         {
-            foreach (var rackItemInput in RackItemInputs)
-            {
+            foreach (var rackItemInput in _rackItemInputs)
                 rackItemInput.Save(xml, node);
-            }
         }
 
         protected void SaveOutputs(XmlDocument xml, XmlNode node)
         {
             foreach (var rackItemOutput in RackItemOutputs)
-            {
                 rackItemOutput.Save(xml, node);
-            }
         }
 
         protected void AttachPipeToInput(int inputNumber, Pipe pipe)
         {
-            var input = RackItemInputs.FirstOrDefault(x => x.InputNumber == inputNumber);
+            var input = _rackItemInputs.FirstOrDefault(x => x.InputNumber == inputNumber);
             if (input != null)
-            {
                 input.Pipe = pipe;
-            }
         }
 
         protected void LoadInputsAndOutputs(XmlNode xml)
         {
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
                 switch (node.Name)
                 {
                     case "Input":
@@ -112,7 +104,6 @@ namespace AudioSpectrum.RackItems
                         AddOutput(new RackItemOutput(node));
                         break;
                 }
-            }
         }
     }
 }

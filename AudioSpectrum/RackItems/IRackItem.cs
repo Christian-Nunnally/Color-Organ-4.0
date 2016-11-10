@@ -1,23 +1,26 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Controls;
+using System.Windows;
 using System.Xml;
 
 namespace AudioSpectrum.RackItems
 {
-    public delegate void Pipe(List<byte> data, int depth);
-    public delegate void SetSideRailDelegate(string name, List<Control> controls);
+    public delegate void Pipe(List<byte> data);
+
+    public delegate void SetSideRailDelegate(string name, List<UIElement> controls);
 
     public delegate IRackItem RackItemFactory(XmlElement xml);
 
     public interface IRackItem : ISaveable
     {
-        string ItemName { get; set; }
+        string ItemName { get; }
+
+        List<UIElement> SideRailItems { get; set; }
 
         IRackItem CreateRackItem(XmlElement xml);
 
-        List<RackItemInput> GetInputs();
+        IEnumerable<RackItemInput> GetInputs();
 
-        List<RackItemOutput> GetOutputs();
+        IEnumerable<RackItemOutput> GetOutputs();
 
         void SetRack(RackItemContainer rack);
 
@@ -32,10 +35,5 @@ namespace AudioSpectrum.RackItems
         void AddInput(RackItemInput input);
 
         void RenameOutput(long key, string newName);
-
-        /// <summary>
-        /// This function gets run on a the RackCableManagers Heartbeat thread.
-        /// </summary>
-        void HeartBeat();
     }
 }

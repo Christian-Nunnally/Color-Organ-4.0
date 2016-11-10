@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Input;
 
 namespace AudioSpectrum.RackItems
 {
     public delegate void DisplayClickedEventHandler(int pixelNumber, EventArgs e);
 
     /// <summary>
-    /// Interaction logic for LedDisplay.xaml
+    ///     Interaction logic for LedDisplay.xaml
     /// </summary>
     public partial class LedDisplay : UserControl
     {
-        public event DisplayClickedEventHandler PixelClicked;
-
-        private bool _mouseDown;
         private Rectangle _lastPixelMouseMovedOver;
 
         public LedDisplay()
@@ -23,15 +20,15 @@ namespace AudioSpectrum.RackItems
             InitializeComponent();
         }
 
+        public event DisplayClickedEventHandler PixelClicked;
+
         public void Set(byte[] data)
         {
             var enhancedBrightnessData = new byte[data.Length];
-            if (data.Length < 3*64) return;
+            if (data.Length < 3 * 64) return;
 
             for (var i = 0; i < data.Length; i++)
-            {
-                enhancedBrightnessData[i] = (byte)(data[i] == 0 ? 0 : Math.Truncate(data[i]/2.0) + 128);
-            }
+                enhancedBrightnessData[i] = (byte)(data[i] == 0 ? 0 : Math.Truncate(data[i] / 2.0) + 128);
 
             Pixel1.Fill = new SolidColorBrush(Color.FromArgb(255, enhancedBrightnessData[0], enhancedBrightnessData[64 + 0], enhancedBrightnessData[128 + 0]));
             Pixel2.Fill = new SolidColorBrush(Color.FromArgb(255, enhancedBrightnessData[1], enhancedBrightnessData[64 + 1], enhancedBrightnessData[128 + 1]));
@@ -114,18 +111,14 @@ namespace AudioSpectrum.RackItems
 
         private void LedDisplay_OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                var pixel = Mouse.DirectlyOver as Rectangle;
-                if (pixel != null && pixel.Name.Length > 4 && pixel.Name.Substring(0, 5) == "Pixel" && _lastPixelMouseMovedOver != pixel)
-                {
-                    _lastPixelMouseMovedOver = pixel;
-                    int pixelNumber;
-                    if (!int.TryParse(pixel.Name.Substring(5), out pixelNumber)) return;
-                    pixelNumber--;
-                    PixelClicked?.Invoke(pixelNumber, EventArgs.Empty);
-                }
-            }
+            if (e.LeftButton != MouseButtonState.Pressed) return;
+            var pixel = Mouse.DirectlyOver as Rectangle;
+            if ((pixel == null) || (pixel.Name.Length <= 4) || (pixel.Name.Substring(0, 5) != "Pixel") || Equals(_lastPixelMouseMovedOver, pixel)) return;
+            _lastPixelMouseMovedOver = pixel;
+            int pixelNumber;
+            if (!int.TryParse(pixel.Name.Substring(5), out pixelNumber)) return;
+            pixelNumber--;
+            PixelClicked?.Invoke(pixelNumber, EventArgs.Empty);
         }
     }
 }

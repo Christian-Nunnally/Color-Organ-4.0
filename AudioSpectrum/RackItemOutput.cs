@@ -6,10 +6,6 @@ namespace AudioSpectrum
 {
     public class RackItemOutput : ISaveable
     {
-        public string VisibleName { get; set; }
-
-        public long Key { get; private set; }
-        public int OutputNumber { get; internal set; }
 
         public RackItemOutput(string visibleName)
         {
@@ -22,6 +18,12 @@ namespace AudioSpectrum
             Load(xml);
         }
 
+        public string VisibleName { get; set; }
+
+        public long Key { get; private set; }
+
+        public int OutputNumber { private get; set; }
+
         public void Save(XmlDocument xml, XmlNode parent)
         {
             var node = parent.AppendChild(xml.CreateElement("Output"));
@@ -33,7 +35,6 @@ namespace AudioSpectrum
         public void Load(XmlNode xml)
         {
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
                 switch (node.Name)
                 {
                     case "VisibleName":
@@ -46,7 +47,6 @@ namespace AudioSpectrum
                         OutputNumber = int.Parse(node.InnerText);
                         break;
                 }
-            }
         }
 
         public override string ToString()

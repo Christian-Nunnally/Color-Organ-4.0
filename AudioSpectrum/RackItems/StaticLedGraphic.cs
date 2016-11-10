@@ -8,8 +8,6 @@ namespace AudioSpectrum.RackItems
 {
     public class StaticLedGraphic : ISaveable
     {
-        public string Name { get; private set; }
-        public byte[] Graphic { get; }
 
         public StaticLedGraphic(XmlNode xml)
         {
@@ -19,13 +17,52 @@ namespace AudioSpectrum.RackItems
 
         public StaticLedGraphic(string name)
         {
-            Graphic = new byte[64*3];
+            Graphic = new byte[64 * 3];
             Name = name;
+        }
+
+        public string Name { get; private set; }
+        public byte[] Graphic { get; }
+
+        public void Save(XmlDocument xml, XmlNode parent)
+        {
+            var node = parent.AppendChild(xml.CreateElement("StaticGraphic"));
+            node.AppendChild(xml.CreateElement("GraphicName")).InnerText = Name;
+            node.AppendChild(xml.CreateElement("Graphic")).InnerText = ToString();
+        }
+
+        public void Load(XmlNode xml)
+        {
+            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
+                switch (node.Name)
+                {
+                    case "GraphicName":
+                        Name = node.InnerText;
+                        break;
+                    case "Graphic":
+                        var splitBytes = node.InnerText.Split(new[] { '-' }, Graphic.Length);
+                        if (Graphic.Length == splitBytes.Length)
+                        {
+                            var i = 0;
+                            foreach (var splitByte in splitBytes)
+                            {
+                                byte @byte;
+                                if (byte.TryParse(splitByte, out @byte))
+                                    Graphic[i] = @byte;
+                                i++;
+                            }
+                        }
+                        else
+                        {
+                            throw new ProjectLoadException();
+                        }
+                        break;
+                }
         }
 
         public void SetPixel(int pixelNumber, Color color)
         {
-            if (pixelNumber < 0 || pixelNumber >= 64) throw new ArgumentException("color");
+            if ((pixelNumber < 0) || (pixelNumber >= 64)) throw new ArgumentException("color");
             Graphic[pixelNumber] = color.R;
             Graphic[pixelNumber + 64] = color.G;
             Graphic[pixelNumber + 128] = color.B;
@@ -33,15 +70,8 @@ namespace AudioSpectrum.RackItems
 
         public bool IsPixelOff(int pixelNumber)
         {
-            if (pixelNumber < 0 || pixelNumber >= 64) throw new ArgumentException("color");
-            return Graphic[pixelNumber] == 0 && Graphic[pixelNumber + 64] == 0 && Graphic[pixelNumber + 64] == 0;
-        }
-
-        public void Save(XmlDocument xml, XmlNode parent)
-        {
-            var node = parent.AppendChild(xml.CreateElement("StaticGraphic"));
-            node.AppendChild(xml.CreateElement("GraphicName")).InnerText = Name;
-            node.AppendChild(xml.CreateElement("Graphic")).InnerText = ToString();
+            if ((pixelNumber < 0) || (pixelNumber >= 64)) throw new ArgumentException("color");
+            return (Graphic[pixelNumber] == 0) && (Graphic[pixelNumber + 64] == 0) && (Graphic[pixelNumber + 64] == 0);
         }
 
         public override string ToString()
@@ -53,39 +83,6 @@ namespace AudioSpectrum.RackItems
                 sb.Append("-");
             }
             return sb.ToString();
-        }
-
-        public void Load(XmlNode xml)
-        {
-            foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
-                switch (node.Name)
-                {
-                    case "GraphicName":
-                        Name = node.InnerText;
-                        break;
-                    case "Graphic":
-                        var splitBytes = node.InnerText.Split(new []{ '-' }, Graphic.Length);
-                        if (Graphic.Length == splitBytes.Length)
-                        {
-                            var i = 0;
-                            foreach (var splitByte in splitBytes)
-                            {
-                                byte @byte;
-                                if (byte.TryParse(splitByte, out @byte))
-                                {
-                                    Graphic[i] = @byte;
-                                }
-                                i++;
-                            }
-                        }
-                        else
-                        {
-                            throw new ProjectLoadException();
-                        }
-                        break;
-                }
-            }
         }
     }
 }

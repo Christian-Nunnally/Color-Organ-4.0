@@ -14,7 +14,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
+            <ColumnDefinition x:Name="LabelColumn"/>
             <ColumnDefinition Width="80" x:Name="ControlColumn"/>
         </Grid.ColumnDefinitions>
         <Label x:Name="Label" Content="{Binding Path=LabelText, ElementName=LabeledControl}" VerticalAlignment="Top" Height="26" Grid.RowSpan="2"/>

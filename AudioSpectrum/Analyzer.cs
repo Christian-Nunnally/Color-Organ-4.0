@@ -6,41 +6,25 @@ using System.Windows.Threading;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum
 {
     public delegate void PipeOut(List<byte> data);
 
     public class Analyzer
     {
-        public event PipeOut AnalyerDataReady;
 
-        private readonly DispatcherTimer _displayRefreshTimer;         //timer that refreshes the display
-        private readonly float[] _fft;               //buffer for fft data
-        private readonly WASAPIPROC _process;        //callback function to obtain data
-        private int _lastlevel;             //last output level
-        private int _hanctr;                //last output level counter
-        private readonly List<byte> _spectrumdata;   //spectrum data buffer
+        private readonly DispatcherTimer _displayRefreshTimer; //timer that refreshes the display
+        private readonly float[] _fft; //buffer for fft data
+        private readonly WASAPIPROC _process; //callback function to obtain data
+        private readonly List<byte> _spectrumdata; //spectrum data buffer
+        private int _deviceIndex; //used device index
         private Button _enabledButton;
-        private bool _initialized;          //initialized flag
-        private int _deviceIndex;               //used device index
+        private ComboBox _enabledComboBox;
+        private int _hanctr; //last output level counter
+        private bool _initialized; //initialized flag
+        private int _lastlevel; //last output level
 
         private int _lines = 16;
-        private ComboBox _enabledComboBox;
-
-        public int Lines
-        {
-            private get
-            {
-                return _lines;
-            }
-            set
-            {
-                if (value > 0 && value <= 32)
-                {
-                    _lines = value;
-                }
-            }
-        }
 
         public Analyzer()
         {
@@ -59,6 +43,18 @@ namespace AudioSpectrum.RackItems
             var result = Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
             if (!result) throw new Exception("Init Error");
         }
+
+        public int Lines
+        {
+            private get { return _lines; }
+            set
+            {
+                if ((value > 0) && (value <= 32))
+                    _lines = value;
+            }
+        }
+
+        public event PipeOut AnalyerDataReady;
 
         public void Enable(Button enableButton, ComboBox deviceList)
         {
@@ -90,7 +86,7 @@ namespace AudioSpectrum.RackItems
             BassWasapi.BASS_WASAPI_Start();
         }
 
-        public void Disable(Button disableButton, ComboBox deviceList)
+        public void Disable(ComboBox deviceList)
         {
             deviceList.IsEnabled = true;
             BassWasapi.BASS_WASAPI_Stop(true);
@@ -99,15 +95,13 @@ namespace AudioSpectrum.RackItems
             _displayRefreshTimer.IsEnabled = false;
         }
 
-        public void InitDeviceComboBox(ComboBox deviceComboBox)
+        public static void InitDeviceComboBox(ComboBox deviceComboBox)
         {
             for (var i = 0; i < BassWasapi.BASS_WASAPI_GetDeviceCount(); i++)
             {
                 var device = BassWasapi.BASS_WASAPI_GetDeviceInfo(i);
                 if (device.IsEnabled && device.IsLoopback)
-                {
                     deviceComboBox.Items.Add($"{i} - {device.name}");
-                }
             }
             deviceComboBox.SelectedIndex = 0;
         }
@@ -128,33 +122,30 @@ namespace AudioSpectrum.RackItems
                 if (b1 > 1023) b1 = 1023;
                 if (b1 <= b0) b1 = b0 + 1;
                 for (; b0 < b1; b0++)
-                {
                     if (peak < _fft[1 + b0]) peak = _fft[1 + b0];
-                }
                 var y = (int)(Math.Sqrt(peak) * 3 * 255 - 4);
                 if (y > 255) y = 255;
                 if (y < 0) y = 0;
                 _spectrumdata.Add((byte)y);
             }
 
-            AnalyerDataReady.Invoke(_spectrumdata);
+            AnalyerDataReady?.Invoke(_spectrumdata);
             _spectrumdata.Clear();
 
 
-            int level = BassWasapi.BASS_WASAPI_GetLevel();
-            if (level == _lastlevel && level != 0) _hanctr++;
+            var level = BassWasapi.BASS_WASAPI_GetLevel();
+            if ((level == _lastlevel) && (level != 0)) _hanctr++;
             _lastlevel = level;
 
             //Required, because some programs hang the output. If the output hangs for a 75ms
             //this piece of code re initializes the output so it doesn't make a gliched sound for long.
-            if (_hanctr > 3)
-            {
-                _hanctr = 0;
-                Free();
-                Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
-                _initialized = false;
-                Enable(_enabledButton, _enabledComboBox);
-            }
+            if (_hanctr <= 3) return;
+
+            _hanctr = 0;
+            Free();
+            Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
+            _initialized = false;
+            Enable(_enabledButton, _enabledComboBox);
         }
 
         // WASAPI callback, required for continuous recording

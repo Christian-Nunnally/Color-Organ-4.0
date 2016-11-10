@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Xml;
 
 namespace AudioSpectrum.RackItems
@@ -10,13 +11,11 @@ namespace AudioSpectrum.RackItems
     {
         private readonly Style _barStyle;
 
-        private IEnumerable<ProgressBar> Bars => SpectrumStackPanel.Children.OfType<ProgressBar>();
-
         public SpectrumItem(XmlNode xml)
         {
             _barStyle = new Style(typeof(ProgressBar));
             _barStyle.Setters.Add(new Setter(ProgressBar.OrientationProperty, Orientation.Vertical));
-            _barStyle.Setters.Add(new Setter(System.Windows.Controls.Primitives.RangeBase.MaximumProperty, 255.0));
+            _barStyle.Setters.Add(new Setter(RangeBase.MaximumProperty, 255.0));
             _barStyle.Setters.Add(new Setter(MarginProperty, new Thickness(2, 0, 2, 0)));
             InitializeComponent();
             ItemName = "Spectrum";
@@ -32,12 +31,14 @@ namespace AudioSpectrum.RackItems
             }
         }
 
+        private IEnumerable<ProgressBar> Bars => SpectrumStackPanel.Children.OfType<ProgressBar>();
+
         public override IRackItem CreateRackItem(XmlElement xml)
         {
             return new SpectrumItem(xml);
         }
 
-        private void SpectrumIn(List<byte> data, int iteration)
+        private void SpectrumIn(List<byte> data)
         {
             var newData = new List<byte>();
             if (SpectrumStackPanel.Children.Count != data.Count)
@@ -48,16 +49,14 @@ namespace AudioSpectrum.RackItems
                 {
                     var bar = new ProgressBar
                     {
-                        Style = _barStyle,
+                        Style = _barStyle
                     };
                     SpectrumStackPanel.Children.Add(bar);
                 }
 
-                var barWidth = (SpectrumStackPanelGrid.ActualWidth - data.Count*4) / data.Count;
+                var barWidth = (SpectrumStackPanelGrid.ActualWidth - data.Count * 4) / data.Count;
                 foreach (var progressBar in Bars)
-                {
                     progressBar.Width = barWidth;
-                }
             }
 
             var bars = Bars.ToList();
@@ -68,9 +67,7 @@ namespace AudioSpectrum.RackItems
             }
 
             if (RackItemOutputs.Count > 0)
-            {
-                RackContainer.OutputPipe(RackItemOutputs.First(), newData, iteration);
-            }
+                RackContainer.OutputPipe(RackItemOutputs.First(), newData);
         }
 
         public override void Save(XmlDocument xml, XmlNode parent)

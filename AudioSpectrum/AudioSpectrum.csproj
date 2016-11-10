@@ -97,7 +97,7 @@
     <Compile Include="RackCableManager.cs" />
     <Compile Include="RackItemInput.cs" />
     <Compile Include="RackItemOutput.cs" />
-    <Compile Include="RackItems\Analyzer.cs" />
+    <Compile Include="Analyzer.cs" />
     <Compile Include="RackItems\AudioProcessorItem.xaml.cs">
       <DependentUpon>AudioProcessorItem.xaml</DependentUpon>
     </Compile>
@@ -107,6 +107,9 @@
     <Compile Include="ContainedItemsControl.cs" />
     <Compile Include="RackItems\FilterSpectrumItem.xaml.cs">
       <DependentUpon>FilterSpectrumItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RackItems\SpectrumGraphicGenerator.xaml.cs">
+      <DependentUpon>SpectrumGraphicGenerator.xaml</DependentUpon>
     </Compile>
     <Compile Include="RackItems\StaticGraphicEditorItem.xaml.cs">
       <DependentUpon>StaticGraphicEditorItem.xaml</DependentUpon>
@@ -125,8 +128,8 @@
     <Compile Include="RackItems\SerialInterfaceItem.xaml.cs">
       <DependentUpon>SerialInterfaceItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\SpectrumLedItem.xaml.cs">
-      <DependentUpon>SpectrumLedItem.xaml</DependentUpon>
+    <Compile Include="RackItems\LedItem.xaml.cs">
+      <DependentUpon>LedItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="RackItems\SpectrumItem.xaml.cs">
       <DependentUpon>SpectrumItem.xaml</DependentUpon>
@@ -139,6 +142,7 @@
     <Compile Include="SideRailContainers\LabeledControlSideRailContainer.xaml.cs">
       <DependentUpon>LabeledControlSideRailContainer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SideRailContainers\SideRailContentGenerator.cs" />
     <Page Include="RackItems\AudioProcessorItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -150,6 +154,10 @@
     <Page Include="RackItems\FilterSpectrumItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RackItems\SpectrumGraphicGenerator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="RackItems\StaticGraphicEditorItem.xaml">
       <SubType>Designer</SubType>
@@ -183,7 +191,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\SpectrumLedItem.xaml">
+    <Page Include="RackItems\LedItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

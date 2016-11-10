@@ -7,20 +7,11 @@ namespace AudioSpectrum
 {
     public class RackItemInput : ISaveable
     {
-        public string VisibleName { get; set; }
-
-        public long Key { get; private set; }
-
-        public Pipe Pipe { get; set; }
-
-        public int InputNumber { get; set; }
-
-        public string ConnectedOutput { get; set; }
 
         public RackItemInput(string visibleName, Pipe pipeIn)
         {
             VisibleName = visibleName;
-            Key = (long) (new Random().NextDouble() * long.MaxValue);
+            Key = (long)(new Random().NextDouble() * long.MaxValue);
             Pipe = pipeIn;
         }
 
@@ -28,6 +19,16 @@ namespace AudioSpectrum
         {
             Load(xml);
         }
+
+        private string VisibleName { get; set; }
+
+        private long Key { get; set; }
+
+        public Pipe Pipe { get; set; }
+
+        public int InputNumber { get; set; }
+
+        public string ConnectedOutput { get; set; }
 
         public void Save(XmlDocument xml, XmlNode parent)
         {
@@ -41,7 +42,6 @@ namespace AudioSpectrum
         public void Load(XmlNode xml)
         {
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-            {
                 switch (node.Name)
                 {
                     case "VisibleName":
@@ -57,7 +57,6 @@ namespace AudioSpectrum
                         ConnectedOutput = node.InnerText;
                         break;
                 }
-            }
         }
     }
 }

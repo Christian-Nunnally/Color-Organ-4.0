@@ -8,27 +8,12 @@ namespace AudioSpectrum
 {
     public class Project
     {
-        public string ProjectName { get; private set; }
-        public string ProjectPath{ get; private set; }
 
         private readonly Window _window;
 
         public readonly ObservableCollection<RackSetup> RackSetups = new ObservableCollection<RackSetup>();
 
         private RackSetup _selectedRackSetup;
-        public RackSetup SelectedRackSetup
-        {
-            private get { return _selectedRackSetup; }
-            set
-            {
-                if (RackSetups.Contains(value))
-                {
-                    _selectedRackSetup = value;
-                }
-            }
-        }
-
-        public RackArrayControl RackArrayControl => SelectedRackSetup?.RackArrayControl;
 
         public Project(string projectPath, Window window)
         {
@@ -69,6 +54,21 @@ namespace AudioSpectrum
             }
         }
 
+        public string ProjectName { get; private set; }
+        public string ProjectPath { get; private set; }
+
+        public RackSetup SelectedRackSetup
+        {
+            private get { return _selectedRackSetup; }
+            set
+            {
+                if (RackSetups.Contains(value))
+                    _selectedRackSetup = value;
+            }
+        }
+
+        public RackArrayControl RackArrayControl => SelectedRackSetup?.RackArrayControl;
+
         private void LoadRackSetups(XmlNode node)
         {
             foreach (var rackSetupNode in node.ChildNodes.OfType<XmlNode>())
@@ -81,21 +81,13 @@ namespace AudioSpectrum
         public void AddSetup(string setupName, XmlNode xml = null)
         {
             if (RackSetups.Any(rackSetup => rackSetup.Name == setupName))
-            {
                 return;
-            }
 
             if (xml != null)
-            {
                 foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-                {
                     if (node.Name == "SetupName") setupName = node.InnerText;
-                }
-            }
-            else if (setupName == string.Empty)
-            {
-                throw new InvalidOperationException("Must supply an xml node to retrive the setup name from if the setup name is left blank.");
-            }
+                    else if (setupName == string.Empty)
+                        throw new InvalidOperationException("Must supply an xml node to retrive the setup name from if the setup name is left blank.");
 
             var setup = new RackSetup(setupName);
             RackSetups.Add(setup);
@@ -106,9 +98,7 @@ namespace AudioSpectrum
                 var node = xml.ChildNodes.Item(i);
                 if (node == null) continue;
                 if (node.Name == "StackPanel")
-                {
                     setup.RackArrayControl.AddRack(node);
-                }
             }
         }
 
@@ -134,16 +124,13 @@ namespace AudioSpectrum
 
             if (rackSetupElement == null) return xml;
             foreach (var rackSetup in RackSetups)
-            {
                 rackSetup.Save(xml, rackSetupElement);
-            }
 
             return xml;
         }
 
-        public void Close()
+        public static void Close()
         {
-            
         }
     }
 
