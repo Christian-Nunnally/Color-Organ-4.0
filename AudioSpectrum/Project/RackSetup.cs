@@ -7,33 +7,38 @@ namespace AudioSpectrum
     [Serializable]
     public class RackSetup : ISaveable
     {
-
         public RackSetup(string name)
         {
-            RackArrayControl = new RackArrayControl();
+            RackArrayWindow = new RackArrayWindow();
             Name = name;
         }
 
         public RackSetup(XmlNode xml) // TODO: Enable loading through the constructor
         {
-            RackArrayControl = new RackArrayControl();
+            RackArrayWindow = new RackArrayWindow();
             Load(xml);
         }
 
-        public RackArrayControl RackArrayControl { get; }
+        public RackArrayWindow RackArrayWindow { get; }
+
         public string Name { get; private set; }
 
         public void Save(XmlDocument xml, XmlNode parent)
         {
             var rackElement = parent.AppendChild(xml.CreateElement("RackSetup"));
             rackElement.AppendChild(xml.CreateElement("SetupName")).InnerText = Name;
-            RackArrayControl.Save(xml, rackElement);
+            RackArrayWindow.Save(xml, rackElement);
         }
 
         public void Load(XmlNode xml)
         {
             foreach (var node in xml.ChildNodes.OfType<XmlNode>())
                 if (node.Name == "SetupName") Name = node.InnerText;
+        }
+
+        public void Close()
+        {
+            RackArrayWindow.Close();
         }
     }
 }

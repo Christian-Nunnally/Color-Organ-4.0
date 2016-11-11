@@ -18,10 +18,9 @@ namespace AudioSpectrum.RackItems
 
         private readonly MouseEventHandler _dragItemEventHandler;
         private readonly List<ComboBox> _inputComboBoxs = new List<ComboBox>();
-        private readonly RackArrayControl.SelectRackItemDelegate _selectRackItemDelegate;
         public StackPanel ContainingPanel;
 
-        public RackItemContainer(RackCableManager rackCableManager, RackArrayControl rackArray, IRackItem rackItem, MouseEventHandler mouseMovePreviewEventHandler, RackArrayControl.SelectRackItemDelegate mouseClickEventHandler)
+        public RackItemContainer(RackCableManager rackCableManager, RackArrayWindow rackArray, IRackItem rackItem, MouseEventHandler mouseMovePreviewEventHandler)
         {
             InitializeComponent();
 
@@ -42,7 +41,6 @@ namespace AudioSpectrum.RackItems
             InputsGrid.PreviewMouseMove += RackItemMouseMoveForDragging;
             OutputsGrid.PreviewMouseMove += RackItemMouseMoveForDragging;
 
-            _selectRackItemDelegate = mouseClickEventHandler;
             BackgroundGrid.MouseDown += BackgroundGridOnMouseDown;
         }
 
@@ -61,7 +59,7 @@ namespace AudioSpectrum.RackItems
 
         private void BackgroundGridOnMouseDown(object sender, MouseButtonEventArgs mouseButtonEventArgs)
         {
-            _selectRackItemDelegate.Invoke(RackItem);
+            SelectionManager.SelectionMgr.Select(RackItem);
         }
 
         private void RackItemMouseMoveForDragging(object sender, MouseEventArgs e)
@@ -135,11 +133,15 @@ namespace AudioSpectrum.RackItems
                 if (input.ConnectedOutput == null) return;
 
                 var i = 0;
-                foreach (var output in inputCb.Items.OfType<RackItemOutput>())
+
+                if (inputCb.Items.OfType<RackItemOutput>().Count(x => x.VisibleName == input.ConnectedOutput) == 1)
                 {
-                    if (output.VisibleName.Equals(input.ConnectedOutput))
-                        inputCb.SelectedIndex = i;
-                    i++;
+                    foreach (var output in inputCb.Items.OfType<RackItemOutput>())
+                    {
+                        if (output.VisibleName.Equals(input.ConnectedOutput))
+                            inputCb.SelectedIndex = i;
+                        i++;
+                    }
                 }
             }
         }
@@ -164,6 +166,11 @@ namespace AudioSpectrum.RackItems
             RackCableManager.RemoveRack(this);
             ContainingPanel.Children.Remove(this);
 
+            RackItem?.CleanUp();
+        }
+
+        public void Close()
+        {
             RackItem?.CleanUp();
         }
     }

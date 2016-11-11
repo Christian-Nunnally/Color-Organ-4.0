@@ -91,83 +91,105 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ISaveable.cs" />
-    <Compile Include="Project.cs" />
-    <Compile Include="ProjectManager.cs" />
-    <Compile Include="RackCableManager.cs" />
-    <Compile Include="RackItemInput.cs" />
-    <Compile Include="RackItemOutput.cs" />
-    <Compile Include="Analyzer.cs" />
-    <Compile Include="RackItems\AudioProcessorItem.xaml.cs">
+    <Compile Include="Window\FileWindow.xaml.cs">
+      <DependentUpon>FileWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Interfaces\ISaveable.cs" />
+    <Compile Include="Interfaces\ISelectable.cs" />
+    <Compile Include="Window\LeftSideWindow.xaml.cs">
+      <DependentUpon>LeftSideWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Project\Project.cs" />
+    <Compile Include="Project\ProjectManager.cs" />
+    <Compile Include="RackItem\RackCableManager.cs" />
+    <Compile Include="RackItem\RackItemInput.cs" />
+    <Compile Include="RackItem\RackItemOutput.cs" />
+    <Compile Include="Audio\Analyzer.cs" />
+    <Compile Include="RackItem\AudioProcessorItem.xaml.cs">
       <DependentUpon>AudioProcessorItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\AudioSourceItem.xaml.cs">
+    <Compile Include="RackItem\AudioSourceItem.xaml.cs">
       <DependentUpon>AudioSourceItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ContainedItemsControl.cs" />
-    <Compile Include="RackItems\FilterSpectrumItem.xaml.cs">
+    <Compile Include="Control\ContainedItemsControl.cs" />
+    <Compile Include="RackItem\FilterSpectrumItem.xaml.cs">
       <DependentUpon>FilterSpectrumItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\SpectrumGraphicGenerator.xaml.cs">
+    <Compile Include="RackItem\SpectrumGraphicGenerator.xaml.cs">
       <DependentUpon>SpectrumGraphicGenerator.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\StaticGraphicEditorItem.xaml.cs">
+    <Compile Include="RackItem\StaticGraphicEditorItem.xaml.cs">
       <DependentUpon>StaticGraphicEditorItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\IRackItem.cs" />
-    <Compile Include="RackItems\LedDisplay.xaml.cs">
+    <Compile Include="RackItem\IRackItem.cs" />
+    <Compile Include="RackItem\LedDisplay.xaml.cs">
       <DependentUpon>LedDisplay.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackArrayControl.xaml.cs">
-      <DependentUpon>RackArrayControl.xaml</DependentUpon>
+    <Compile Include="Window\RackArrayWindow.xaml.cs">
+      <DependentUpon>RackArrayWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\RackItemBase.cs" />
-    <Compile Include="RackItems\RackItemContainer.xaml.cs">
+    <Compile Include="RackItem\RackItemBase.cs" />
+    <Compile Include="RackItem\RackItemContainer.xaml.cs">
       <DependentUpon>RackItemContainer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\SerialInterfaceItem.xaml.cs">
+    <Compile Include="RackItem\SerialInterfaceItem.xaml.cs">
       <DependentUpon>SerialInterfaceItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\LedItem.xaml.cs">
+    <Compile Include="RackItem\LedItem.xaml.cs">
       <DependentUpon>LedItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\SpectrumItem.xaml.cs">
+    <Compile Include="RackItem\SpectrumItem.xaml.cs">
       <DependentUpon>SpectrumItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\SpectrumToBinaryDataItem.xaml.cs">
+    <Compile Include="RackItem\SpectrumToBinaryDataItem.xaml.cs">
       <DependentUpon>SpectrumToBinaryDataItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RackItems\StaticLedGraphic.cs" />
-    <Compile Include="RackSetup.cs" />
-    <Compile Include="SideRailContainers\LabeledControlSideRailContainer.xaml.cs">
+    <Compile Include="RackItem\StaticLedGraphic.cs" />
+    <Compile Include="Project\RackSetup.cs" />
+    <Compile Include="Window\RackSetupsWindow.xaml.cs">
+      <DependentUpon>RackSetupsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Project\SelectionManager.cs" />
+    <Compile Include="Window\SideRailContainer\LabeledControlSideRailContainer.xaml.cs">
       <DependentUpon>LabeledControlSideRailContainer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SideRailContainers\SideRailContentGenerator.cs" />
-    <Page Include="RackItems\AudioProcessorItem.xaml">
+    <Compile Include="Window\SideRailContainer\SideRailContentGenerator.cs" />
+    <Compile Include="Window\SideRailWindow.xaml.cs">
+      <DependentUpon>SideRailWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Window\FileWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\AudioSourceItem.xaml">
+    <Page Include="Window\LeftSideWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\FilterSpectrumItem.xaml">
+    <Page Include="RackItem\AudioProcessorItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\SpectrumGraphicGenerator.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="RackItems\StaticGraphicEditorItem.xaml">
+    <Page Include="RackItem\AudioSourceItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\LedDisplay.xaml">
+    <Page Include="RackItem\FilterSpectrumItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="RackItem\SpectrumGraphicGenerator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="RackItem\StaticGraphicEditorItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RackItem\LedDisplay.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Window\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -175,35 +197,43 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Window\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="RackArrayControl.xaml">
+    <Page Include="Window\RackArrayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\RackItemContainer.xaml">
+    <Page Include="RackItem\RackItemContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\SerialInterfaceItem.xaml">
+    <Page Include="RackItem\SerialInterfaceItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\LedItem.xaml">
+    <Page Include="RackItem\LedItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\SpectrumItem.xaml">
+    <Page Include="RackItem\SpectrumItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItems\SpectrumToBinaryDataItem.xaml">
+    <Page Include="RackItem\SpectrumToBinaryDataItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SideRailContainers\LabeledControlSideRailContainer.xaml">
+    <Page Include="Window\RackSetupsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Window\SideRailContainer\LabeledControlSideRailContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Window\SideRailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -236,6 +266,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

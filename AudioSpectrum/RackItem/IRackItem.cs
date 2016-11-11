@@ -10,7 +10,7 @@ namespace AudioSpectrum.RackItems
 
     public delegate IRackItem RackItemFactory(XmlElement xml);
 
-    public interface IRackItem : ISaveable
+    public interface IRackItem : ISaveable, ISelectable
     {
         string ItemName { get; }
 

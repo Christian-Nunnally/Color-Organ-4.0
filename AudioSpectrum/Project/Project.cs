@@ -67,7 +67,7 @@ namespace AudioSpectrum
             }
         }
 
-        public RackArrayControl RackArrayControl => SelectedRackSetup?.RackArrayControl;
+        public RackArrayWindow RackArrayWindow => SelectedRackSetup?.RackArrayWindow;
 
         private void LoadRackSetups(XmlNode node)
         {
@@ -98,7 +98,7 @@ namespace AudioSpectrum
                 var node = xml.ChildNodes.Item(i);
                 if (node == null) continue;
                 if (node.Name == "StackPanel")
-                    setup.RackArrayControl.AddRack(node);
+                    setup.RackArrayWindow.AddRack(node);
             }
         }
 
@@ -129,8 +129,12 @@ namespace AudioSpectrum
             return xml;
         }
 
-        public static void Close()
+        public void Close()
         {
+            foreach (var rackSetup in RackSetups)
+            {
+                rackSetup.Close();
+            }
         }
     }
 

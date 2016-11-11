@@ -36,7 +36,7 @@ namespace AudioSpectrum.RackItems
 
         private void SpectrumIn1(List<byte> data)
         {
-            if (data.Count > 64 * 3) _graphicsIns[0] = data.ToArray();
+            if (data.Count >= 64 * 3) _graphicsIns[0] = data.ToArray();
 
             var compositeGraphic = new byte[64 * 3];
 
@@ -74,7 +74,7 @@ namespace AudioSpectrum.RackItems
 
         private void SpectrumIn2(List<byte> data)
         {
-            if (data.Count > 64 * 3) _graphicsIns[1] = data.ToArray();
+            if (data.Count >= 64 * 3) _graphicsIns[1] = data.ToArray();
         }
 
         public override void SetSideRail(SetSideRailDelegate sideRailSetter)

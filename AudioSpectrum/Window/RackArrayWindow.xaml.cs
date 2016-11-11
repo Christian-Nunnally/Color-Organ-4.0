@@ -6,20 +6,20 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using System.Xml;
 using AudioSpectrum.RackItems;
+using AudioSpectrum.SideRailContainers;
 
 namespace AudioSpectrum
 {
-    public partial class RackArrayControl : UserControl, ISaveable
+    public partial class RackArrayWindow : UserControl, ISaveable
     {
 
         public delegate void SelectRackItemDelegate(IRackItem selectedRackItem);
 
         private const double RackWidth = 400;
         private static readonly Dictionary<string, RackItemFactory> RegisteredRackItems = new Dictionary<string, RackItemFactory>();
-        private static readonly List<RackArrayControl> AllExistingRackArrays = new List<RackArrayControl>();
+        private static readonly List<RackArrayWindow> AllExistingRackArrays = new List<RackArrayWindow>();
         private readonly UIElement _dummyDragSource = new UIElement();
 
         private readonly RackCableManager _rackCableManager = new RackCableManager();
@@ -32,7 +32,7 @@ namespace AudioSpectrum
         private UIElement _realDragSource;
         private Point _startPoint;
 
-        public RackArrayControl()
+        public RackArrayWindow()
         {
             InitializeComponent();
             PopulateTopRailWithRegisteredRackItems();
@@ -138,45 +138,7 @@ namespace AudioSpectrum
         {
             if (!RegisteredRackItems.ContainsKey(rackItemName)) throw new UnregisteredRackItemException();
             new RackItemContainer(_rackCableManager, this, RegisteredRackItems[rackItemName](xml),
-                StackPanelPreviewMouseMove, SelectRackItem);
-        }
-
-        private void SetSideRail(string title, IEnumerable<UIElement> controls)
-        {
-            SelectedItemNameLabel.Content = title;
-
-            SideRail.Children.Clear();
-
-            var propertiesLabel = new TextBlock
-            {
-                Text = "Properties",
-                FontSize = 10,
-                Height = 20,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 2, 0, 0)
-            };
-            SideRail.Children.Add(propertiesLabel);
-            SideRail.Children.Add(GetSideRailSeperator());
-
-            foreach (var control in controls)
-                SideRail.Children.Add(control);
-
-            SideRail.Children.Add(GetSideRailSeperator());
-        }
-
-        private static Rectangle GetSideRailSeperator()
-        {
-            var seperator = new Rectangle
-            {
-                Height = 1,
-                Fill = Brushes.Black
-            };
-            return seperator;
-        }
-
-        private void SelectRackItem(IRackItem selectedRackItem)
-        {
-            selectedRackItem.SetSideRail(SetSideRail);
+                StackPanelPreviewMouseMove);
         }
 
         #region StackPanel Drag Drop
@@ -251,6 +213,17 @@ namespace AudioSpectrum
         }
 
         #endregion
+
+        public void Close()
+        {
+            foreach (var rackStackPanel in _rackStackPanels)
+            {
+                foreach (var rackItemContainer in rackStackPanel.Children.OfType<RackItemContainer>())
+                {
+                    rackItemContainer.Close();
+                }
+            }
+        }
     }
 
     internal class UnregisteredRackItemException : Exception

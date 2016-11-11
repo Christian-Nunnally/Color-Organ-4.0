@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="AudioSpectrum.RackArrayWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:audioSpectrum="clr-namespace:AudioSpectrum"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ContextMenu x:Key="AddRackContextMenu">
+            <MenuItem Command="audioSpectrum:Commands.AddRackCommand">
+
+            </MenuItem>
+        </ContextMenu>
+    </UserControl.Resources>
+    <Grid ContextMenu="{StaticResource AddRackContextMenu}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="1" Grid.Column="0">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <audioSpectrum:ContainedItemsControl x:Name="RackPanel" Width="Auto" Margin="1">
+                    <audioSpectrum:ContainedItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </audioSpectrum:ContainedItemsControl.ItemsPanel>
+                    <audioSpectrum:ContainedItemsControl.ItemContainerStyle>
+                        <Style>
+                            <Setter Property="Control.Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ContentControl">
+                                        <Border BorderThickness="1" BorderBrush="#feee">
+                                            <ContentPresenter />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </audioSpectrum:ContainedItemsControl.ItemContainerStyle>
+                </audioSpectrum:ContainedItemsControl>
+            </ScrollViewer>
+        </Border>
+        <Border Grid.Row="0" Grid.Column="0">
+            <StackPanel Background="#333" x:Name="TopRail" Orientation="Horizontal"></StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

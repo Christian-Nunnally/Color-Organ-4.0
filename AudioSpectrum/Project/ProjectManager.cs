@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Xml;
+using AudioSpectrum.RackItems;
 using Microsoft.Win32;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
@@ -9,14 +11,17 @@ namespace AudioSpectrum
 {
     public class ProjectManager
     {
+        private readonly ContentControl _rackArrayContentControl;
         private readonly Window _window;
 
         private Project _project;
         public EventHandler CurrentProjectChanged;
+        public SetSideRailDelegate SetSideRail;
 
-        public ProjectManager(Window window)
+        public ProjectManager(Window window, ContentControl rackArrayContentControl)
         {
             _window = window;
+            _rackArrayContentControl = rackArrayContentControl;
         }
 
         public Project CurrentProject
@@ -29,6 +34,11 @@ namespace AudioSpectrum
             }
         }
 
+        public void RackSetupChanged()
+        {
+            _rackArrayContentControl.Content = CurrentProject.RackArrayWindow;
+        }
+
         public void OpenNewProject()
         {
             if (CurrentProject != null)
@@ -38,7 +48,7 @@ namespace AudioSpectrum
                 if (result == MessageBoxResult.Yes)
                     SaveCurrentProject();
 
-                Project.Close();
+                CurrentProject.Close();
             }
 
             string fileName;
@@ -106,6 +116,12 @@ namespace AudioSpectrum
             }
 
             CurrentProject = new Project("Project", _window);
+        }
+
+        public void CloseProject()
+        {
+            CurrentProject?.Close();
+            CurrentProject = null;
         }
     }
 }

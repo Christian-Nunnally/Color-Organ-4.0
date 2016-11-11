@@ -105,5 +105,7 @@ namespace AudioSpectrum.RackItems
                         break;
                 }
         }
+
+        public bool IsSelected { get; set; }
     }
 }

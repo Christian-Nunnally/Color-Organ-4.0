@@ -31,6 +31,8 @@ namespace AudioSpectrum.RackItems
 
         private void SpectrumIn(List<byte> data)
         {
+            data = new List<byte>(data);
+
             if (data.Count == 0) return;
 
             while (data.Count < 8)
