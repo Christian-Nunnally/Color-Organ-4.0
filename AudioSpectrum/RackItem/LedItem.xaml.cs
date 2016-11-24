@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Windows;
 using System.Xml;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public partial class LedItem : RackItemBase
     {
@@ -55,7 +56,7 @@ namespace AudioSpectrum.RackItems
                     {
                         compositeGraphic[p] = r;
                         compositeGraphic[p + 64] = g;
-                        compositeGraphic[p + 128] = g;
+                        compositeGraphic[p + 128] = b;
                     }
                     else
                     {

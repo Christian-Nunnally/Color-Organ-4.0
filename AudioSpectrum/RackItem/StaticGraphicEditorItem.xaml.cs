@@ -6,10 +6,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml;
-using AudioSpectrum.SideRailContainers;
+using AudioSpectrum.RackItem;
+using AudioSpectrum.Window.SideRailContainer;
 using Xceed.Wpf.Toolkit;
+using LabeledControlSideRailContainer = AudioSpectrum.Window.SideRailContainer.LabeledControlSideRailContainer;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public partial class StaticGraphicEditorItem : RackItemBase
     {
@@ -126,7 +128,7 @@ namespace AudioSpectrum.RackItems
                     {
                         compositeGraphic[p] = r;
                         compositeGraphic[p + 64] = g;
-                        compositeGraphic[p + 128] = g;
+                        compositeGraphic[p + 128] = b;
                     }
                     else
                     {

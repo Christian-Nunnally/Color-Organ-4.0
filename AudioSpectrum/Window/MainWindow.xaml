@@ -2,7 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AudioSpectrum"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="AudioSpectrum.MainWindow"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:window="clr-namespace:AudioSpectrum.Window"
+    mc:Ignorable="d" x:Class="AudioSpectrum.Window.MainWindow"
         x:Name="Main"
         Title="Color Organ v4.0" Height="950" Width="1200" Topmost="{Binding IsChecked, ElementName=Alwaystp}">
     <Window.Resources>
@@ -15,7 +17,7 @@
         </Style>
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="local:Commands.AddRackCommand" Executed="AddRackCommandExecuted"></CommandBinding>
+        <CommandBinding Command="window:Commands.AddRackCommand" Executed="AddRackCommandExecuted"></CommandBinding>
     </Window.CommandBindings>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -26,8 +28,8 @@
         <Border BorderThickness="1" Grid.Column="1" BorderBrush="#fbbb">
             <ContentControl x:Name="RackArrayContentControl"/>
         </Border>
-        <local:LeftSideWindow x:Name="LeftSideWindow"/>
-        <local:SideRailWindow x:Name="SideRail" Grid.Column="2"/>
+        <window:LeftSideWindow x:Name="LeftSideWindow"/>
+        <window:SideRailWindow x:Name="SideRail" Grid.Column="2"/>
 
     </Grid>
 </Window>

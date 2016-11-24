@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using AudioSpectrum.Project;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Window
 {
     /// <summary>
     ///     Interaction logic for LeftSideWindow.xaml

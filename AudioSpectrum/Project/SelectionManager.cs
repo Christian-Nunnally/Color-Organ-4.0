@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using AudioSpectrum.RackItems;
+using AudioSpectrum.Interfaces;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Project
 {
     public class SelectionManager
     {

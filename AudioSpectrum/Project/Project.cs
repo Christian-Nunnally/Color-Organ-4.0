@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Windows;
 using System.Xml;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Project
 {
     public class Project
     {
 
-        private readonly Window _window;
+        private readonly System.Windows.Window _window;
 
         public readonly ObservableCollection<RackSetup> RackSetups = new ObservableCollection<RackSetup>();
 
         private RackSetup _selectedRackSetup;
 
-        public Project(string projectPath, Window window)
+        public Project(string projectPath, System.Windows.Window window)
         {
             _window = window;
 
@@ -47,8 +47,8 @@ namespace AudioSpectrum
                         var sp = ProjectPath?.Split('\\');
                         ProjectName = sp.Length > 0 ? sp[sp.Length - 1].Split('.')[0] : "Invalid Project Name".Split('.')[0];
                         break;
-                    case "RackSetups":
-                        LoadRackSetups(node);
+                    case "RackSetup":
+                        AddSetup(node);
                         break;
                 }
             }
@@ -67,39 +67,19 @@ namespace AudioSpectrum
             }
         }
 
-        public RackArrayWindow RackArrayWindow => SelectedRackSetup?.RackArrayWindow;
+        public Window.RackArrayWindow RackArrayWindow => SelectedRackSetup?.RackArrayWindow;
 
-        private void LoadRackSetups(XmlNode node)
-        {
-            foreach (var rackSetupNode in node.ChildNodes.OfType<XmlNode>())
-            {
-                if (rackSetupNode.Name != "RackSetup") continue;
-                AddSetup("", rackSetupNode);
-            }
-        }
-
-        public void AddSetup(string setupName, XmlNode xml = null)
+        public void AddSetup(string setupName)
         {
             if (RackSetups.Any(rackSetup => rackSetup.Name == setupName))
                 return;
+            
+            RackSetups.Add(new RackSetup(setupName));
+        }
 
-            if (xml != null)
-                foreach (var node in xml.ChildNodes.OfType<XmlNode>())
-                    if (node.Name == "SetupName") setupName = node.InnerText;
-                    else if (setupName == string.Empty)
-                        throw new InvalidOperationException("Must supply an xml node to retrive the setup name from if the setup name is left blank.");
-
-            var setup = new RackSetup(setupName);
-            RackSetups.Add(setup);
-
-            if (xml == null) return;
-            for (var i = 0; i < xml.ChildNodes.Count; i++)
-            {
-                var node = xml.ChildNodes.Item(i);
-                if (node == null) continue;
-                if (node.Name == "StackPanel")
-                    setup.RackArrayWindow.AddRack(node);
-            }
+        private void AddSetup(XmlNode xml)
+        {
+            RackSetups.Add(new RackSetup(xml));
         }
 
         public XmlDocument SaveProject()
@@ -117,14 +97,13 @@ namespace AudioSpectrum
 
             var xml = new XmlDocument();
             xml.AppendChild(xml.CreateElement("Project"));
-            if (xml.DocumentElement == null) throw new ProjectLoadException();
-            xml.DocumentElement.AppendChild(xml.CreateElement("ProjectPath")).InnerText = ProjectPath;
+            var projectNode = xml.DocumentElement;
 
-            var rackSetupElement = xml.DocumentElement?.AppendChild(xml.CreateElement("RackSetups"));
+            // ReSharper disable once PossibleNullReferenceException
+            projectNode.AppendChild(xml.CreateElement("ProjectPath")).InnerText = ProjectPath;
 
-            if (rackSetupElement == null) return xml;
             foreach (var rackSetup in RackSetups)
-                rackSetup.Save(xml, rackSetupElement);
+                rackSetup.Save(xml, projectNode);
 
             return xml;
         }
@@ -138,7 +117,7 @@ namespace AudioSpectrum
         }
     }
 
-    public class ProjectLoadException : Exception
+    public class ProjectLoadException : Exception // TODO: Add exception messeges
     {
     }
 }

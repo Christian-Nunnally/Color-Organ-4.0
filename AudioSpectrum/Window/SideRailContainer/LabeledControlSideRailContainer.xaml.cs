@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace AudioSpectrum.SideRailContainers
+namespace AudioSpectrum.Window.SideRailContainer
 {
     /// <summary>
     ///     Interaction logic for LabeledControlSideRailContainer.xaml

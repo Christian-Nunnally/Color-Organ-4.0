@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Xml;
+using AudioSpectrum.Interfaces;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public delegate void Pipe(List<byte> data);
 

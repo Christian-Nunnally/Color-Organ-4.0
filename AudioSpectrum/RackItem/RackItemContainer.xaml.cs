@@ -7,8 +7,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
+using AudioSpectrum.Project;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     [ContentProperty("AdditionalContent")]
     public partial class RackItemContainer : UserControl
@@ -20,7 +22,7 @@ namespace AudioSpectrum.RackItems
         private readonly List<ComboBox> _inputComboBoxs = new List<ComboBox>();
         public StackPanel ContainingPanel;
 
-        public RackItemContainer(RackCableManager rackCableManager, RackArrayWindow rackArray, IRackItem rackItem, MouseEventHandler mouseMovePreviewEventHandler)
+        public RackItemContainer(RackCableManager rackCableManager, Window.RackArrayWindow rackArray, IRackItem rackItem, MouseEventHandler mouseMovePreviewEventHandler)
         {
             InitializeComponent();
 

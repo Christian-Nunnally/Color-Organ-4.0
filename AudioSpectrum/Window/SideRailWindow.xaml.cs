@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using AudioSpectrum.SideRailContainers;
+using AudioSpectrum.Project;
+using AudioSpectrum.Window.SideRailContainer;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Window
 {
     /// <summary>
     ///     Interaction logic for SideRailWindow.xaml

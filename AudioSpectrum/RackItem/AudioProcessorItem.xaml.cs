@@ -4,10 +4,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
-using AudioSpectrum.SideRailContainers;
+using AudioSpectrum.RackItem;
 using Xceed.Wpf.Toolkit;
+using LabeledControlSideRailContainer = AudioSpectrum.Window.SideRailContainer.LabeledControlSideRailContainer;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     [Serializable]
     public partial class AudioProcessorItem : RackItemBase

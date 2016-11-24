@@ -4,7 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public delegate void DisplayClickedEventHandler(int pixelNumber, EventArgs e);
 

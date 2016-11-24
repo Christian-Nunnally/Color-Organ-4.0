@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Xml;
-using AudioSpectrum.RackItems;
+using AudioSpectrum.Interfaces;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.RackItem
 {
     public class RackItemInput : ISaveable
     {
+        private static readonly Random Rnd = new Random();
 
         public RackItemInput(string visibleName, Pipe pipeIn)
         {
             VisibleName = visibleName;
-            Key = (long)(new Random().NextDouble() * long.MaxValue);
+            Key = (long)(Rnd.NextDouble() * long.MaxValue);
             Pipe = pipeIn;
         }
 

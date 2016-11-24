@@ -3,8 +3,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public abstract class RackItemBase : UserControl, IRackItem
     {

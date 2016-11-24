@@ -2,11 +2,12 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
-using AudioSpectrum.RackItems;
+using AudioSpectrum.Project;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Window
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : System.Windows.Window
     {
         private readonly ProjectManager _projectManager;
 
@@ -17,7 +18,6 @@ namespace AudioSpectrum
 
             _projectManager = new ProjectManager(this, RackArrayContentControl);
             LeftSideWindow.AttachProjectManager(_projectManager);
-            _projectManager?.OpenUntitledProject();
             _projectManager.CurrentProjectChanged += CurrentProjectChanged;
             WindowState = WindowState.Maximized;
 
@@ -49,15 +49,15 @@ namespace AudioSpectrum
 
         private static void RegisterRackItems()
         {
-            RackArrayWindow.RegisterRackItem(new AudioSourceItem(null).ItemName, new AudioSourceItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new SpectrumItem(null).ItemName, new SpectrumItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new LedItem(null).ItemName, new LedItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new SerialInterfaceItem(null).ItemName, new SerialInterfaceItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new FilterSpectrumItem(null).ItemName, new FilterSpectrumItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new StaticGraphicEditorItem(null).ItemName, new StaticGraphicEditorItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new SpectrumToBinaryDataItem(null).ItemName, new SpectrumToBinaryDataItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new AudioProcessorItem(null).ItemName, new AudioProcessorItem(null).CreateRackItem);
-            RackArrayWindow.RegisterRackItem(new SpectrumGraphicGenerator(null).ItemName, new SpectrumGraphicGenerator(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new AudioSourceItem(null).ItemName, new AudioSourceItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new SpectrumItem(null).ItemName, new SpectrumItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new LedItem(null).ItemName, new LedItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new SerialInterfaceItem(null).ItemName, new SerialInterfaceItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new FilterSpectrumItem(null).ItemName, new FilterSpectrumItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new StaticGraphicEditorItem(null).ItemName, new StaticGraphicEditorItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new SpectrumToBinaryDataItem(null).ItemName, new SpectrumToBinaryDataItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new AudioProcessorItem(null).ItemName, new AudioProcessorItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new SpectrumGraphicGenerator(null).ItemName, new SpectrumGraphicGenerator(null).CreateRackItem);
         }
 
         private void AddRackCommandExecuted(object sender, ExecutedRoutedEventArgs e)

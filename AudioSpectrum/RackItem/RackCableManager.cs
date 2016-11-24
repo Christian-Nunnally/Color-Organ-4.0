@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
-using AudioSpectrum.RackItems;
+using AudioSpectrum.RackItem;
 
 namespace AudioSpectrum
 {

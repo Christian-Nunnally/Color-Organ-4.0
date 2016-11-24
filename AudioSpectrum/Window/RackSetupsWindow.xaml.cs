@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using AudioSpectrum.Project;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Window
 {
     /// <summary>
     ///     Interaction logic for RackSetupsWindow.xaml
@@ -15,6 +16,7 @@ namespace AudioSpectrum
         {
             InitializeComponent();
             RackSetupListBox.DisplayMemberPath = "Name";
+            ControlRow.Height = new GridLength(0);
         }
 
         public void AttachProjectManager(ProjectManager projectManager)
@@ -28,9 +30,11 @@ namespace AudioSpectrum
             if (_projectManager.CurrentProject == null)
             {
                 RackSetupListBox.ItemsSource = null;
+                ControlRow.Height = new GridLength(0);
                 return;
             }
             RackSetupListBox.ItemsSource = _projectManager.CurrentProject.RackSetups;
+            ControlRow.Height = new GridLength(33);
         }
 
         private void RackSetupListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

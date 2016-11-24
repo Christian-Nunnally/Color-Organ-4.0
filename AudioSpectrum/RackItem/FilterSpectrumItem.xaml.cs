@@ -6,10 +6,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml;
-using AudioSpectrum.SideRailContainers;
+using AudioSpectrum.RackItem;
 using Xceed.Wpf.Toolkit;
+using LabeledControlSideRailContainer = AudioSpectrum.Window.SideRailContainer.LabeledControlSideRailContainer;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public partial class FilterSpectrumItem : RackItemBase
     {

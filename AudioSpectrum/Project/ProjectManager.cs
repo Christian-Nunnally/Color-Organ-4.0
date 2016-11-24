@@ -3,28 +3,28 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
-using AudioSpectrum.RackItems;
+using AudioSpectrum.RackItem;
 using Microsoft.Win32;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Project
 {
     public class ProjectManager
     {
         private readonly ContentControl _rackArrayContentControl;
-        private readonly Window _window;
+        private readonly System.Windows.Window _window;
 
-        private Project _project;
+        private AudioSpectrum.Project.Project _project;
         public EventHandler CurrentProjectChanged;
         public SetSideRailDelegate SetSideRail;
 
-        public ProjectManager(Window window, ContentControl rackArrayContentControl)
+        public ProjectManager(System.Windows.Window window, ContentControl rackArrayContentControl)
         {
             _window = window;
             _rackArrayContentControl = rackArrayContentControl;
         }
 
-        public Project CurrentProject
+        public AudioSpectrum.Project.Project CurrentProject
         {
             get { return _project; }
             private set
@@ -53,10 +53,10 @@ namespace AudioSpectrum
 
             string fileName;
             if (GetFileNameDialog(out fileName, _window))
-                CurrentProject = new Project(fileName, _window);
+                CurrentProject = new AudioSpectrum.Project.Project(fileName, _window);
         }
 
-        public static bool GetFileNameDialog(out string fileName, Window window)
+        public static bool GetFileNameDialog(out string fileName, System.Windows.Window window)
         {
             fileName = "";
             var ofd = new OpenFileDialog
@@ -104,7 +104,7 @@ namespace AudioSpectrum
                 return;
             }
             doc.Load(fileName);
-            CurrentProject = new Project(doc);
+            CurrentProject = new AudioSpectrum.Project.Project(doc);
         }
 
         public void OpenUntitledProject()
@@ -115,7 +115,7 @@ namespace AudioSpectrum
                 return;
             }
 
-            CurrentProject = new Project("Project", _window);
+            CurrentProject = new AudioSpectrum.Project.Project("Project", _window);
         }
 
         public void CloseProject()

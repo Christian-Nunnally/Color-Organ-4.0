@@ -2,30 +2,34 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml;
-using AudioSpectrum.SideRailContainers;
+using LabeledControlSideRailContainer = AudioSpectrum.Window.SideRailContainer.LabeledControlSideRailContainer;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public partial class SerialInterfaceItem : RackItemBase
     {
-        private const int PacketSize = 64;
+        private const int PacketSize = 97;
 
         private static bool _waitForSync;
         private static bool _serialInterfaceExists;
         private static bool _isSerialThreadRunning;
         private static string _currentComPort;
+        private readonly Random _rnd = new Random();
 
         private static readonly ConcurrentQueue<byte[]> OuputQueue = new ConcurrentQueue<byte[]>();
+        private static readonly ConcurrentQueue<string> InputQueue = new ConcurrentQueue<string>();
         private static Thread _arduinoInterfaceBufferThread;
 
         private readonly ComboBox _comPortSelector = new ComboBox();
         private readonly Label _outgoingPacketCountLabel = new Label();
         private readonly CheckBox _syncCheckBox = new CheckBox();
+        private readonly ListBox _serialInput = new ListBox();
 
         private List<UIElement> _sideRailControls;
 
@@ -48,10 +52,14 @@ namespace AudioSpectrum.RackItems
                 _comPortSelector.SelectedIndex = 0;
 
             if (xml == null)
-                AddInput(new RackItemInput("Graphics Input", GraphicsDataIn));
+            {
+                AddInput(new RackItemInput("Graphics Input1", GraphicsDataIn1));
+                AddInput(new RackItemInput("Graphics Input2", GraphicsDataIn2));
+            }
             else
                 Load(xml);
         }
+
 
         private static SerialPort Serial { get; set; }
 
@@ -62,8 +70,8 @@ namespace AudioSpectrum.RackItems
                 {
                     new LabeledControlSideRailContainer("Com Port", _comPortSelector, Orientation.Horizontal, 180),
                     new LabeledControlSideRailContainer("Sync", _syncCheckBox, Orientation.Horizontal, 180),
-                    new LabeledControlSideRailContainer("Outgoing Packets:", _outgoingPacketCountLabel,
-                        Orientation.Horizontal, 50)
+                    new LabeledControlSideRailContainer("Outgoing Packets:", _outgoingPacketCountLabel, Orientation.Horizontal, 50),
+                    new LabeledControlSideRailContainer("Serial Input", _serialInput, Orientation.Vertical, 200),
                 };
             sideRailSetter?.Invoke(ItemName, _sideRailControls);
         }
@@ -82,15 +90,6 @@ namespace AudioSpectrum.RackItems
 
         private void EnableButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((Serial != null) && Serial.IsOpen)
-            {
-                GetPorts();
-                if (!_comPortSelector.Items.Contains(_currentComPort)) return;
-                _comPortSelector.SelectedValue = _currentComPort;
-                _comPortSelector.IsEnabled = false;
-                return;
-            }
-
             if ((_comPortSelector.Items.Count <= 0) || (_comPortSelector.SelectedIndex == -1))
                 return;
             _comPortSelector.IsEnabled = false;
@@ -141,14 +140,62 @@ namespace AudioSpectrum.RackItems
             return new SerialInterfaceItem(xml);
         }
 
-        private void GraphicsDataIn(List<byte> graphicsData)
+        private void GraphicsDataIn1(List<byte> graphicsData)
         {
             if ((Serial == null) || !Serial.IsOpen) return;
+            if (graphicsData.Count < 64 * 3) return;
 
-            for (var i = 0; i < 64 * 3; i += PacketSize)
-                OuputQueue.Enqueue(graphicsData.GetRange(i, PacketSize).ToArray());
+            var header = new byte[1];
+            header[0] = 0;// _rnd.NextDouble() > 0.5 ? (byte)0 : (byte)1;
+
+            var compressedGraphicData = new byte[96];
+            for (var i = 0; i < graphicsData.Count; i += 2)
+            {
+                compressedGraphicData[i / 2] = (byte)((graphicsData[i] >> 4) | (graphicsData[i + 1] & 240));
+            }
+
+            OuputQueue.Enqueue(header.Concat(compressedGraphicData).ToArray());
 
             _outgoingPacketCountLabel.Content = OuputQueue.Count.ToString();
+
+            while (!InputQueue.IsEmpty)
+            {
+                if (_serialInput.Items.Count > 5) _serialInput.Items.RemoveAt(0);
+                string result;
+                if (InputQueue.TryDequeue(out result))
+                {
+                    _serialInput.Items.Add(result);
+                }
+            }
+        }
+
+        private void GraphicsDataIn2(List<byte> graphicsData)
+        {
+            if ((Serial == null) || !Serial.IsOpen) return;
+            if (graphicsData.Count < 64 * 3) return;
+
+            var header = new byte[1];
+            header[0] = 1;//_rnd.NextDouble() > 0.5 ? (byte)0 : (byte)1;
+
+            var compressedGraphicData = new byte[96];
+            for (var i = 0; i < graphicsData.Count; i += 2)
+            {
+                compressedGraphicData[i / 2] = (byte)((graphicsData[i] >> 4) | (graphicsData[i + 1] & 240));
+            }
+
+            OuputQueue.Enqueue(header.Concat(compressedGraphicData).ToArray());
+
+            _outgoingPacketCountLabel.Content = OuputQueue.Count.ToString();
+
+            while (!InputQueue.IsEmpty)
+            {
+                if (_serialInput.Items.Count > 5) _serialInput.Items.RemoveAt(0);
+                string result;
+                if (InputQueue.TryDequeue(out result))
+                {
+                    _serialInput.Items.Add(result);
+                }
+            }
         }
 
         private static void RunArduinoSerialInterfaceBuffer()
@@ -157,17 +204,19 @@ namespace AudioSpectrum.RackItems
             while (_serialInterfaceExists)
                 if (Serial.IsOpen)
                 {
-                    byte[] wasDequeued;
-                    if (OuputQueue.TryDequeue(out wasDequeued))
+                    while ((Serial.BytesToRead == 0) && _waitForSync)
                     {
-                        Serial.Write(wasDequeued, 0, PacketSize);
-                        while ((Serial.BytesToRead == 0) && _waitForSync)
-                        {
-                        }
                     }
 
                     var arduinoResponse = new byte[Serial.BytesToRead];
                     Serial.Read(arduinoResponse, 0, arduinoResponse.Length);
+                    if (arduinoResponse.Length == 1 && arduinoResponse[0] != 0) InputQueue.Enqueue(arduinoResponse[0].ToString());
+
+                    byte[] wasDequeued;
+                    if (OuputQueue.TryDequeue(out wasDequeued))
+                    {
+                        Serial.Write(wasDequeued, 0, PacketSize);
+                    }
                 }
                 else
                 {
@@ -196,6 +245,7 @@ namespace AudioSpectrum.RackItems
             _serialInterfaceExists = false;
             while (_isSerialThreadRunning)
             {
+
             }
         }
 
@@ -209,7 +259,8 @@ namespace AudioSpectrum.RackItems
         public sealed override void Load(XmlNode xml)
         {
             LoadInputsAndOutputs(xml);
-            AttachPipeToInput(1, GraphicsDataIn);
+            AttachPipeToInput(1, GraphicsDataIn1);
+            AttachPipeToInput(2, GraphicsDataIn2);
         }
     }
 }

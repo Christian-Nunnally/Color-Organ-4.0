@@ -3,8 +3,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using System.Xml;
+using AudioSpectrum.Interfaces;
+using AudioSpectrum.Project;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public class StaticLedGraphic : ISaveable
     {

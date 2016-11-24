@@ -1,9 +1,10 @@
-﻿<UserControl x:Class="AudioSpectrum.LeftSideWindow"
+﻿<UserControl x:Class="AudioSpectrum.Window.LeftSideWindow"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AudioSpectrum"
+             xmlns:window="clr-namespace:AudioSpectrum.Window"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -24,7 +25,7 @@
         <Border BorderThickness="1" BorderBrush="#fbbb">
             <Button x:Name="ProjectNameLabel" BorderThickness="0" Style="{StaticResource ProjectNameButtonStyle}" Background="White" HorizontalContentAlignment="Center" FontSize="24" VerticalContentAlignment="Center" Click="ProjectNameLabel_Click"/>
         </Border>
-        <local:RackSetupsWindow x:Name="RackSetupsWindow" HorizontalAlignment="Left" Grid.Row="1" Width="260"/>
-        <local:FileWindow x:Name="FileWindow" Grid.Row="1"/>
+        <window:RackSetupsWindow x:Name="RackSetupsWindow" HorizontalAlignment="Left" Grid.Row="1" Width="260"/>
+        <window:FileWindow x:Name="FileWindow" Grid.Row="1"/>
     </Grid>
 </UserControl>

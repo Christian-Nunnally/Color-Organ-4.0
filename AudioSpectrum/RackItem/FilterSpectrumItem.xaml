@@ -3,10 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:rackItems="clr-namespace:AudioSpectrum.RackItems"
+             xmlns:rackItems="clr-namespace:AudioSpectrum.RackItem"
              xmlns:system="clr-namespace:System.Windows;assembly=System"
             
-             x:Class="AudioSpectrum.RackItems.FilterSpectrumItem"
+             x:Class="AudioSpectrum.RackItem.FilterSpectrumItem"
              mc:Ignorable="d" Height="0">
     <rackItems:RackItemBase.Resources>
 

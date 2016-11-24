@@ -7,10 +7,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Xml;
-using AudioSpectrum.RackItems;
-using AudioSpectrum.SideRailContainers;
+using AudioSpectrum.Interfaces;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Window
 {
     public partial class RackArrayWindow : UserControl, ISaveable
     {

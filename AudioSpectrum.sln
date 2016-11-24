@@ -5,16 +5,37 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioSpectrum", "AudioSpectrum\AudioSpectrum.csproj", "{FE769D32-7B2F-4C76-A186-49A762CA9FB4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A076DEEF-04D7-44CF-8404-06F9FC620BF0}"
+	ProjectSection(SolutionItems) = preProject
+		Arduino\Spectrum\ArduinoColorOrganv4\ArduinoColorOrganv4.ino = Arduino\Spectrum\ArduinoColorOrganv4\ArduinoColorOrganv4.ino
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioSpectrumTest", "AudioSpectrumTest\AudioSpectrumTest.csproj", "{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Debug|x86.Build.0 = Debug|Any CPU
 		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Release|x86.ActiveCfg = Release|Any CPU
+		{FE769D32-7B2F-4C76-A186-49A762CA9FB4}.Release|x86.Build.0 = Release|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Debug|x86.Build.0 = Debug|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Release|x86.ActiveCfg = Release|Any CPU
+		{6B5849C7-72F9-4A91-9D51-DF3A6A8DC343}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

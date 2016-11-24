@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Windows;
 using System.Xml;
+using AudioSpectrum.RackItem;
 
-namespace AudioSpectrum.RackItems
+namespace AudioSpectrum.RackItem
 {
     public partial class SpectrumGraphicGenerator : RackItemBase
     {

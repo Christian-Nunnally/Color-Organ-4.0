@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:rackItems="clr-namespace:AudioSpectrum.RackItems"
-             x:Class="AudioSpectrum.RackItems.StaticGraphicEditorItem"
+             xmlns:rackItems="clr-namespace:AudioSpectrum.RackItem"
+             x:Class="AudioSpectrum.RackItem.StaticGraphicEditorItem"
              mc:Ignorable="d" 
              Height="0" 
              d:DesignWidth="350">

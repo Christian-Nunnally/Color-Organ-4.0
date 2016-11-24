@@ -1,6 +1,6 @@
 ﻿using System.Xml;
 
-namespace AudioSpectrum
+namespace AudioSpectrum.Interfaces
 {
     public interface ISaveable
     {

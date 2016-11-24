@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace AudioSpectrum.SideRailContainers
+namespace AudioSpectrum.Window.SideRailContainer
 {
     public static class SideRailContentGenerator
     {
