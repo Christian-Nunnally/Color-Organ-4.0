@@ -57,7 +57,7 @@ namespace AudioSpectrum.Window
             Window.RackArrayWindow.RegisterRackItem(new SerialInterfaceItem(null).ItemName, new SerialInterfaceItem(null).CreateRackItem);
             Window.RackArrayWindow.RegisterRackItem(new FilterSpectrumItem(null).ItemName, new FilterSpectrumItem(null).CreateRackItem);
             Window.RackArrayWindow.RegisterRackItem(new StaticGraphicEditorItem(null).ItemName, new StaticGraphicEditorItem(null).CreateRackItem);
-            Window.RackArrayWindow.RegisterRackItem(new SpectrumToBinaryDataItem(null).ItemName, new SpectrumToBinaryDataItem(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new SpectrumToBinaryItem(null).ItemName, new SpectrumToBinaryItem(null).CreateRackItem);
             Window.RackArrayWindow.RegisterRackItem(new AudioProcessorItem(null).ItemName, new AudioProcessorItem(null).CreateRackItem);
             Window.RackArrayWindow.RegisterRackItem(new SpectrumGraphicGenerator(null).ItemName, new SpectrumGraphicGenerator(null).CreateRackItem);
         }

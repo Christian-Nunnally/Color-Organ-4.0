@@ -91,6 +91,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="RackItem\SpectrumToBinaryItem.cs" />
     <Compile Include="RackItem\StaticGraphicEditorItem .cs" />
     <Compile Include="Window\FileWindow.xaml.cs">
       <DependentUpon>FileWindow.xaml</DependentUpon>
@@ -138,9 +139,6 @@
     </Compile>
     <Compile Include="RackItem\SpectrumItem.xaml.cs">
       <DependentUpon>SpectrumItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="RackItem\SpectrumToBinaryDataItem.xaml.cs">
-      <DependentUpon>SpectrumToBinaryDataItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="RackItem\StaticLedGraphic.cs" />
     <Compile Include="Project\RackSetup.cs" />
@@ -212,10 +210,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RackItem\SpectrumItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="RackItem\SpectrumToBinaryDataItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
