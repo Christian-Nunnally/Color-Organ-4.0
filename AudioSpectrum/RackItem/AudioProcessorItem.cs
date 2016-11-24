@@ -10,8 +10,7 @@ using LabeledControlSideRailContainer = AudioSpectrum.Window.SideRailContainer.L
 
 namespace AudioSpectrum.RackItem
 {
-    [Serializable]
-    public partial class AudioProcessorItem : RackItemBase
+    public class AudioProcessorItem : RackItemBase
     {
         private readonly List<List<byte>> _history = new List<List<byte>>();
 
@@ -26,7 +25,6 @@ namespace AudioSpectrum.RackItem
             _numberOfSamplesUpDown.Maximum = 16;
             _numberOfSamplesUpDown.Increment = 1;
 
-            InitializeComponent();
             ItemName = "AudioProcessor";
 
             if (xml == null)

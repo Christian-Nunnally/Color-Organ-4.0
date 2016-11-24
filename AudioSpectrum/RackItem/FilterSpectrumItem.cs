@@ -6,13 +6,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml;
-using AudioSpectrum.RackItem;
 using Xceed.Wpf.Toolkit;
 using LabeledControlSideRailContainer = AudioSpectrum.Window.SideRailContainer.LabeledControlSideRailContainer;
 
 namespace AudioSpectrum.RackItem
 {
-    public partial class FilterSpectrumItem : RackItemBase
+    public class FilterSpectrumItem : RackItemBase
     {
 
         private readonly Slider _channelCountSlider = new ColorSpectrumSlider();
@@ -27,7 +26,6 @@ namespace AudioSpectrum.RackItem
 
         public FilterSpectrumItem(XmlNode xml)
         {
-            InitializeComponent();
             ItemName = "FilterSpectrum";
 
             _channelCountSlider.ValueChanged += ChannelCountSlider_ValueChanged;

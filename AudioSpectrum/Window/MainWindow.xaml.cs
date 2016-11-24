@@ -59,7 +59,7 @@ namespace AudioSpectrum.Window
             Window.RackArrayWindow.RegisterRackItem(new StaticGraphicEditorItem(null).ItemName, new StaticGraphicEditorItem(null).CreateRackItem);
             Window.RackArrayWindow.RegisterRackItem(new SpectrumToBinaryItem(null).ItemName, new SpectrumToBinaryItem(null).CreateRackItem);
             Window.RackArrayWindow.RegisterRackItem(new AudioProcessorItem(null).ItemName, new AudioProcessorItem(null).CreateRackItem);
-            Window.RackArrayWindow.RegisterRackItem(new SpectrumGraphicGenerator(null).ItemName, new SpectrumGraphicGenerator(null).CreateRackItem);
+            Window.RackArrayWindow.RegisterRackItem(new SpectrumGraphicGeneratorItem(null).ItemName, new SpectrumGraphicGeneratorItem(null).CreateRackItem);
         }
 
         private void AddRackCommandExecuted(object sender, ExecutedRoutedEventArgs e)

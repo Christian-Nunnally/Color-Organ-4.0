@@ -5,12 +5,12 @@ using System.Xml;
 
 namespace AudioSpectrum.RackItem
 {
-    public class SpectrumGraphicGenerator : RackItemBase
+    public class SpectrumGraphicGeneratorItem : RackItemBase
     {
 
-        public SpectrumGraphicGenerator(XmlNode xml)
+        public SpectrumGraphicGeneratorItem(XmlNode xml)
         {
-            ItemName = "SpectrumGraphicGenerator";
+            ItemName = "SpectrumGraphicGeneratorItem";
 
             if (xml == null)
             {
@@ -25,7 +25,7 @@ namespace AudioSpectrum.RackItem
 
         public override IRackItem CreateRackItem(XmlElement xml)
         {
-            return new SpectrumGraphicGenerator(xml);
+            return new SpectrumGraphicGeneratorItem(xml);
         }
 
         private void SpectrumIn(List<byte> data)

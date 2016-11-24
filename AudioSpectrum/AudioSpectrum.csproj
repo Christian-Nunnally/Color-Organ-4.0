@@ -91,6 +91,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="RackItem\AudioProcessorItem.cs" />
+    <Compile Include="RackItem\FilterSpectrumItem.cs" />
     <Compile Include="RackItem\SpectrumGraphicGeneratorItem.cs" />
     <Compile Include="RackItem\SpectrumToBinaryItem.cs" />
     <Compile Include="RackItem\StaticGraphicEditorItem .cs" />
@@ -108,16 +110,10 @@
     <Compile Include="RackItem\RackItemInput.cs" />
     <Compile Include="RackItem\RackItemOutput.cs" />
     <Compile Include="Audio\Analyzer.cs" />
-    <Compile Include="RackItem\AudioProcessorItem.xaml.cs">
-      <DependentUpon>AudioProcessorItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RackItem\AudioSourceItem.xaml.cs">
       <DependentUpon>AudioSourceItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Control\ContainedItemsControl.cs" />
-    <Compile Include="RackItem\FilterSpectrumItem.xaml.cs">
-      <DependentUpon>FilterSpectrumItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RackItem\IRackItem.cs" />
     <Compile Include="RackItem\LedDisplay.xaml.cs">
       <DependentUpon>LedDisplay.xaml</DependentUpon>
@@ -159,15 +155,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RackItem\AudioProcessorItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="RackItem\AudioSourceItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="RackItem\FilterSpectrumItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
