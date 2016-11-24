@@ -63,6 +63,10 @@ namespace AudioSpectrum.Window
 
         public void AddRack(XmlNode xml = null)
         {
+            var scrollViewer = new ScrollViewer();
+            scrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+
             var rackPanel = new StackPanel { Width = RackWidth };
             rackPanel.PreviewMouseLeftButtonUp += StackPanelPreviewMouseLeftButtonUp;
             rackPanel.PreviewMouseLeftButtonDown += StackPanelPreviewMouseLeftButtonDown;
@@ -72,7 +76,10 @@ namespace AudioSpectrum.Window
             rackPanel.Background = Brushes.White;
             _mostRecentlyAddedStackPanelForLoading = rackPanel;
             _rackStackPanels.Add(rackPanel);
-            RackPanel.Items.Add(rackPanel);
+
+            scrollViewer.Content = rackPanel;
+
+            RackPanel.Items.Add(scrollViewer);
 
             if (xml == null) return;
             Load(xml);
