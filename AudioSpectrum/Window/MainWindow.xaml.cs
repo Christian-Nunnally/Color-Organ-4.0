@@ -45,6 +45,8 @@ namespace AudioSpectrum.Window
                     _projectManager.SaveCurrentProject();
                     break;
             }
+
+            _projectManager.CloseProject();
         }
 
         private static void RegisterRackItems()

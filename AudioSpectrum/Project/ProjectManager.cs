@@ -3,7 +3,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Xml;
-using AudioSpectrum.RackItem;
 using Microsoft.Win32;
 using MessageBox = Xceed.Wpf.Toolkit.MessageBox;
 
@@ -14,9 +13,8 @@ namespace AudioSpectrum.Project
         private readonly ContentControl _rackArrayContentControl;
         private readonly System.Windows.Window _window;
 
-        private AudioSpectrum.Project.Project _project;
+        private Project _project;
         public EventHandler CurrentProjectChanged;
-        public SetSideRailDelegate SetSideRail;
 
         public ProjectManager(System.Windows.Window window, ContentControl rackArrayContentControl)
         {
@@ -24,7 +22,7 @@ namespace AudioSpectrum.Project
             _rackArrayContentControl = rackArrayContentControl;
         }
 
-        public AudioSpectrum.Project.Project CurrentProject
+        public Project CurrentProject
         {
             get { return _project; }
             private set
@@ -53,7 +51,7 @@ namespace AudioSpectrum.Project
 
             string fileName;
             if (GetFileNameDialog(out fileName, _window))
-                CurrentProject = new AudioSpectrum.Project.Project(fileName, _window);
+                CurrentProject = new Project(fileName, _window);
         }
 
         public static bool GetFileNameDialog(out string fileName, System.Windows.Window window)
@@ -104,18 +102,7 @@ namespace AudioSpectrum.Project
                 return;
             }
             doc.Load(fileName);
-            CurrentProject = new AudioSpectrum.Project.Project(doc);
-        }
-
-        public void OpenUntitledProject()
-        {
-            if (CurrentProject != null)
-            {
-                MessageBox.Show(_window, "Can not create untitled project with a project currently open");
-                return;
-            }
-
-            CurrentProject = new AudioSpectrum.Project.Project("Project", _window);
+            CurrentProject = new Project(doc);
         }
 
         public void CloseProject()
