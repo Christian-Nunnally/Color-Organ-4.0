@@ -6,14 +6,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml;
-using AudioSpectrum.RackItem;
 using AudioSpectrum.Window.SideRailContainer;
 using Xceed.Wpf.Toolkit;
 using LabeledControlSideRailContainer = AudioSpectrum.Window.SideRailContainer.LabeledControlSideRailContainer;
 
 namespace AudioSpectrum.RackItem
 {
-    public partial class StaticGraphicEditorItem : RackItemBase
+    public class StaticGraphicEditorItem : RackItemBase
     {
         private readonly Button _addChannelButton = new Button();
         private readonly TextBox _channelNameTextBox = new TextBox();
@@ -28,7 +27,6 @@ namespace AudioSpectrum.RackItem
 
         public StaticGraphicEditorItem(XmlNode xml)
         {
-            InitializeComponent();
             ItemName = "GraphicEditor";
             _ledDisplay.PixelClicked += PixelClicked;
             _channelsListBox.ItemsSource = _graphics;

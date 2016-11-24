@@ -91,6 +91,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="RackItem\StaticGraphicEditorItem .cs" />
     <Compile Include="Window\FileWindow.xaml.cs">
       <DependentUpon>FileWindow.xaml</DependentUpon>
     </Compile>
@@ -117,9 +118,6 @@
     </Compile>
     <Compile Include="RackItem\SpectrumGraphicGenerator.xaml.cs">
       <DependentUpon>SpectrumGraphicGenerator.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="RackItem\StaticGraphicEditorItem.xaml.cs">
-      <DependentUpon>StaticGraphicEditorItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="RackItem\IRackItem.cs" />
     <Compile Include="RackItem\LedDisplay.xaml.cs">
@@ -180,10 +178,6 @@
     <Page Include="RackItem\SpectrumGraphicGenerator.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="RackItem\StaticGraphicEditorItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="RackItem\LedDisplay.xaml">
       <SubType>Designer</SubType>
