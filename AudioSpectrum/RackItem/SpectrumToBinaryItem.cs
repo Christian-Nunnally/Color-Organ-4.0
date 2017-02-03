@@ -19,7 +19,7 @@ namespace AudioSpectrum.RackItem
         private readonly List<double> _mins = new List<double>();
         private readonly CheckBox _normalizationCheckBox = new CheckBox();
         private readonly DoubleUpDown _normalizationDecayDoubleUpDown = new DoubleUpDown();
-        private bool _normalize;
+        private bool _normalize = true;
 
         public SpectrumToBinaryItem(XmlNode xml)
         {
@@ -28,18 +28,22 @@ namespace AudioSpectrum.RackItem
             _activationPercentDoubleUpDown.Minimum = 0;
             _activationPercentDoubleUpDown.Maximum = 1;
             _activationPercentDoubleUpDown.Increment = 0.01;
+            _activationPercentDoubleUpDown.Value = 0.90;
             _activationPercentDoubleUpDown.ValueChanged += ActivationPercentDoubleUpDownOnValueChanged;
 
             _deactivationPercentDoubleUpDown.Minimum = 0;
             _deactivationPercentDoubleUpDown.Maximum = 1;
             _deactivationPercentDoubleUpDown.Increment = 0.01;
+            _deactivationPercentDoubleUpDown.Value = 0.50;
             _deactivationPercentDoubleUpDown.ValueChanged += DeactivationPercentDoubleUpDownOnValueChanged;
 
             _normalizationDecayDoubleUpDown.Minimum = 0.0;
             _normalizationDecayDoubleUpDown.Maximum = 5.0;
+            _normalizationDecayDoubleUpDown.Value = 0.5;
             _normalizationDecayDoubleUpDown.Increment = 0.05;
 
             _normalizationCheckBox.Checked += NormalizationCheckBox_Checked;
+            _normalizationCheckBox.IsChecked = true;
 
             if (xml == null)
             {

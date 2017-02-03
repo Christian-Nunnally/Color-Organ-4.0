@@ -28,9 +28,10 @@ void setup() {
 	  displays[i].begin();
   }
   
+  SerialUSB.begin(115200);
   Serial.begin(115200);
   delay(1);
-  Serial.write(B1);
+  SerialUSB.write(B1);
   delay(1);
 }
 
@@ -41,10 +42,10 @@ bool header[HeaderSize];
 int p = 0;
 void loop()
 {
-  while (Serial.available() > 0)
+  while (SerialUSB.available() > 0)
   {
   	countFromLastData = 0;
-  	value = Serial.read();
+  	value = SerialUSB.read();
   
   	if (counter >= HeaderSize)
   	{
@@ -62,7 +63,7 @@ void loop()
          }
          displays[currentDisplay].show();
          p = 0;
-         Serial.write(counter + 1);
+         SerialUSB.write(counter + 1);
       }
   	}
   	else
@@ -76,7 +77,7 @@ void loop()
 
   if (countFromLastData > 30000)
   {
-	  Serial.write(counter);
+	  SerialUSB.write(counter);
 	  countFromLastData = 0;
 	  counter = 0;
     p = 0;

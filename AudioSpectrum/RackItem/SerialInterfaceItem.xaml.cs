@@ -14,13 +14,12 @@ namespace AudioSpectrum.RackItem
 {
     public partial class SerialInterfaceItem : RackItemBase
     {
-        private const int PacketSize = 97;
+        private const int PacketSize = 204;
 
         private static bool _waitForSync;
         private static bool _serialInterfaceExists;
         private static bool _isSerialThreadRunning;
         private static string _currentComPort;
-        private readonly Random _rnd = new Random();
 
         private static readonly ConcurrentQueue<byte[]> OuputQueue = new ConcurrentQueue<byte[]>();
         private static readonly ConcurrentQueue<string> InputQueue = new ConcurrentQueue<string>();
@@ -145,16 +144,14 @@ namespace AudioSpectrum.RackItem
             if ((Serial == null) || !Serial.IsOpen) return;
             if (graphicsData.Count < 64 * 3) return;
 
-            var header = new byte[1];
-            header[0] = 0;// _rnd.NextDouble() > 0.5 ? (byte)0 : (byte)1;
+            var header = new byte[12];
+            header[0] = 40;
+            header[1] = 30;
+            header[2] = 20;
+            header[3] = 10;
+            header[4] = 0;
 
-            var compressedGraphicData = new byte[96];
-            for (var i = 0; i < graphicsData.Count; i += 2)
-            {
-                compressedGraphicData[i / 2] = (byte)((graphicsData[i] >> 4) | (graphicsData[i + 1] & 240));
-            }
-
-            OuputQueue.Enqueue(header.Concat(compressedGraphicData).ToArray());
+            OuputQueue.Enqueue(header.Concat(graphicsData).ToArray());
 
             _outgoingPacketCountLabel.Content = OuputQueue.Count.ToString();
 
@@ -174,16 +171,14 @@ namespace AudioSpectrum.RackItem
             if ((Serial == null) || !Serial.IsOpen) return;
             if (graphicsData.Count < 64 * 3) return;
 
-            var header = new byte[1];
-            header[0] = 1;//_rnd.NextDouble() > 0.5 ? (byte)0 : (byte)1;
+            var header = new byte[12];
+            header[0] = 40;
+            header[1] = 30;
+            header[2] = 20;
+            header[3] = 10;
+            header[4] = 1;
 
-            var compressedGraphicData = new byte[96];
-            for (var i = 0; i < graphicsData.Count; i += 2)
-            {
-                compressedGraphicData[i / 2] = (byte)((graphicsData[i] >> 4) | (graphicsData[i + 1] & 240));
-            }
-
-            OuputQueue.Enqueue(header.Concat(compressedGraphicData).ToArray());
+            OuputQueue.Enqueue(header.Concat(graphicsData).ToArray());
 
             _outgoingPacketCountLabel.Content = OuputQueue.Count.ToString();
 
@@ -215,7 +210,7 @@ namespace AudioSpectrum.RackItem
                     byte[] wasDequeued;
                     if (OuputQueue.TryDequeue(out wasDequeued))
                     {
-                        Serial.Write(wasDequeued, 0, PacketSize);
+                        Serial.Write(wasDequeued, 0, wasDequeued.Length);
                     }
                 }
                 else
